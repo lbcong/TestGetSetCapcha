@@ -32,6 +32,7 @@ import Service.GetTextFromGit;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import org.springframework.web.bind.annotation.RequestParam;
+
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @RestController
@@ -143,6 +144,7 @@ public class GreedingController {
         }
 
     }
+
 
     public String executeCommand(String command) {
 
