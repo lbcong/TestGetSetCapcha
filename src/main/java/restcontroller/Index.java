@@ -66,6 +66,7 @@ public class Index {
                 } else {
                     webDriver = createWebdriver.getGoogle(Constant.binaryGoogleHeroku);
                 }
+
                 return codenvy.Start(webDriver);
             }
         } catch (Exception e) {
