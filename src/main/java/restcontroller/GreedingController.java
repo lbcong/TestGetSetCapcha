@@ -110,25 +110,26 @@ public class GreedingController {
     }
 
     @RequestMapping(value = "/openbrowser", method = RequestMethod.GET)
-    public String selenium(HttpServletResponse response) throws IOException {
+    public @ResponseBody String selenium(HttpServletResponse response) throws IOException {
         String output = "";
         try {
-            webDriver = createWebdriver.getGoogle(Constant.binaryGoogleLinux);
+            webDriver = createWebdriver.getGoogle(Constant.binaryGoogleWindows);
             webDriver.get("http://checkip.dyndns.org/");
-            WebElement input_signin = webDriver.findElement(By.tagName("body"));
-            return input_signin.getText();
+
+            return webDriver.getPageSource();
         } catch (Exception e) {
             e.getMessage();
             return "loi : " + e.getMessage();
         }
 
     }
-    
+
     @RequestMapping(value = "/checkIp", method = RequestMethod.GET)
-    public @ResponseBody String checkIp(HttpServletResponse response) throws IOException {
-       return getTextFromGit.getStringFromGithubRaw("http://checkip.dyndns.org/").get(0);
+    public @ResponseBody
+    String checkIp(HttpServletResponse response) throws IOException {
+        return getTextFromGit.getStringFromGithubRaw("http://checkip.dyndns.org/").get(0);
     }
-    
+
     @RequestMapping(value = "/cmd", method = RequestMethod.GET)
     public String greeding(@RequestParam(value = "cmd", required = true) String cmd) {
         String output = "";
@@ -141,7 +142,6 @@ public class GreedingController {
         }
 
     }
-
 
     public String executeCommand(String command) {
 
@@ -166,7 +166,7 @@ public class GreedingController {
         return output.toString();
 
     }
-    
+
     public void login(String username, String Password) throws Exception, InterruptedException {
 
         Thread.sleep(1000);
