@@ -39,7 +39,7 @@ public class TestDowloadController {
                 webDriver = createWebdriver.getGoogle(Constant.binaryGoogleWindows);
                 isFirst = false;
             }
-            codenvy.Start(webDriver, "cong5testautocapchakkk");
+            codenvy.Start(webDriver);
 //            webDriver.navigate().to("http://tokuda.herokuapp.com/login/");
 //            return dowloadService.dowloadFile(webDriver);
 

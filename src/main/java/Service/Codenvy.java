@@ -6,6 +6,8 @@
 package Service;
 
 import Utils.Utils;
+import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -23,10 +25,18 @@ public class Codenvy {
     Utils utils;
     @Autowired
     DowloadService dowloadService;
+    @Autowired
+    GetTextFromGit getTextFromGit;
 
-    public byte[] Start(WebDriver webDriver, String username) {
+    public byte[] Start(WebDriver webDriver) {
+        List<String> lists = null;
+        try {
+            lists = getTextFromGit.getStringFromGithubRaw("https://raw.githubusercontent.com/lbcong/SaveFileTemp/master/AccountVerifyOutLook.txt");
+        } catch (IOException ex) {
+            System.out.println("gettext:"+ex.getMessage());
+        }
         boolean flag_wait = false;
-        String str_username = username;
+        String str_username = lists.get(0);
 //        String str_password = "Ahfweh123@#$";
         String str_password = "Zxcv123123";
         String str_LastName = "cailong";

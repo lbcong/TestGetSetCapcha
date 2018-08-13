@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import Service.Codenvy;
 import Service.CreateWebdriver;
 import Service.DowloadService;
+import Service.GetTextFromGit;
 import Service.PathDriver;
 import Utils.Utils;
 import org.springframework.context.annotation.ComponentScan;
@@ -23,6 +24,12 @@ import org.springframework.context.annotation.ComponentScans;
     ,@ComponentScan(basePackages = "Utils")
 })
 public class SpringConfig {
+    
+    @Bean
+    public GetTextFromGit getTextFromGit() {
+        return new GetTextFromGit();
+    }
+
 
     @Bean
     public CheckCapcha checkCapcha() {

@@ -41,13 +41,13 @@ public class CheckCapcha {
                 return "nhap than cong";
             } else {
                 System.out.println("nhap that bai");
-                return "nhap that bai";
+                return "nhap that bai , ip loi";
             }
 
         } catch (Exception ex) {
             // ip loi
             System.out.println(ex.getMessage());
-            return ex.getMessage();
+            return "loi exception : "+ex.getMessage();
         }
     }
 
