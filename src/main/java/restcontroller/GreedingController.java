@@ -113,7 +113,7 @@ public class GreedingController {
     public @ResponseBody String selenium(HttpServletResponse response) throws IOException {
         String output = "";
         try {
-            webDriver = createWebdriver.getGoogle(Constant.binaryGoogleWindows);
+            webDriver = createWebdriver.getGoogle(Constant.binaryGoogleHeroku);
             webDriver.get("http://checkip.dyndns.org/");
 
             return webDriver.getPageSource();
