@@ -28,14 +28,15 @@ public class Index {
     Codenvy codenvy;
     @Autowired
     CheckCapcha checkCapcha;
-    WebDriver webDriver;
+    WebDriver webDriver = null;
 
     @RequestMapping(value = "/setCap", method = RequestMethod.GET)
-    public @ResponseBody String setCap(
+    public @ResponseBody
+    String setCap(
             @RequestParam(value = "captext", defaultValue = "", required = false) String captext
     ) {
         return checkCapcha.Check(webDriver, captext);
-            
+
     }
 
     @RequestMapping(value = "/getCapTypeBase64", method = RequestMethod.GET)
@@ -60,9 +61,26 @@ public class Index {
     byte[] getCapTypeImg() {
         try {
             if (!flag) {
-                webDriver = createWebdriver.getGoogle(Constant.binaryGoogleWindows);
+                if (webDriver != null) {
+                    webDriver.manage().deleteAllCookies();
+                } else {
+                    webDriver = createWebdriver.getGoogle(Constant.binaryGoogleHeroku);
+                }
                 return codenvy.Start(webDriver);
             }
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return null;
+    }
+
+    @RequestMapping(value = "/resetCapTypeImg",
+            method = RequestMethod.GET,
+            produces = MediaType.IMAGE_JPEG_VALUE)
+    public @ResponseBody
+    byte[] resetCapTypeImg() {
+        try {
+
         } catch (Exception e) {
             e.getMessage();
         }
