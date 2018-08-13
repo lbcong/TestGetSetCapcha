@@ -3,6 +3,7 @@ package Service;
 import Bean.SystemConfig;
 import ConstantVariable.Constant;
 import java.io.File;
+import org.openqa.selenium.Proxy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -55,11 +56,12 @@ public class CreateWebdriver {
                 case "Linux":
                     ChromeOptions options = new ChromeOptions();
                     options.setBinary(binaryGoogle);
+                    options.addArguments("--proxy-server=socks5://127.0.0.1:1080");
                     webDriver = new ChromeDriver(options);
                     break;
                 case "Windows":
+                   
                     ChromeOptions optionswindow = new ChromeOptions();
-                    optionswindow.addArguments("user-data-dir=C:\\Users\\Hello\\AppData\\Local\\Google\\Chrome\\User Data\\Default");
                     try {
                         webDriver = new ChromeDriver();
                     } catch (Exception e) {
