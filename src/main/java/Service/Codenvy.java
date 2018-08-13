@@ -31,7 +31,7 @@ public class Codenvy {
     public byte[] Start(WebDriver webDriver) {
         List<String> lists = null;
         try {
-            lists = getTextFromGit.getStringFromGithubRaw("https://raw.githubusercontent.com/lbcong/SaveFileTemp/master/AccountVerifyOutLook.txt");
+            lists = getTextFromGit.getStringFromGithubRaw("https://raw.githubusercontent.com/lbcong/SaveFileTemp/master/AccountSignUpOutLook.txt");
         } catch (IOException ex) {
             System.out.println("gettext:"+ex.getMessage());
         }
@@ -82,7 +82,7 @@ public class Codenvy {
             Select BirthYear = new Select(webDriver.findElement(By.id("BirthYear")));
             if (languae.equals("vi-VN")) {
                 BirthDay.selectByVisibleText("3");
-                BirthMonth.selectByVisibleText("Tháng Ba");
+                BirthMonth.selectByVisibleText("Thï¿½ng Ba");
                 BirthYear.selectByVisibleText("1991");
             } else {
                 BirthDay.selectByVisibleText("3");
