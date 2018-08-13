@@ -5,6 +5,7 @@
  */
 package Bean;
 
+import ConstantVariable.ConstantFtpServer;
 import Service.CheckCapcha;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,9 @@ import Service.DowloadService;
 import Service.GetTextFromGit;
 import Service.PathDriver;
 import Utils.Utils;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScans;
 
@@ -24,6 +28,7 @@ import org.springframework.context.annotation.ComponentScans;
     ,@ComponentScan(basePackages = "Utils")
 })
 public class SpringConfig {
+    
     
     @Bean
     public GetTextFromGit getTextFromGit() {

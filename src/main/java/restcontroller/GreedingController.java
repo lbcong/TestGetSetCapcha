@@ -29,8 +29,13 @@ import org.springframework.web.bind.annotation.RestController;
 import static Utils.Doc_file_kieu_binary.readFileBinary;
 import Service.DowloadService;
 import Service.GetTextFromGit;
+import Service.ProxyWithSSH;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -110,7 +115,8 @@ public class GreedingController {
     }
 
     @RequestMapping(value = "/openbrowser", method = RequestMethod.GET)
-    public @ResponseBody String selenium(HttpServletResponse response) throws IOException {
+    public @ResponseBody
+    String selenium(HttpServletResponse response) throws IOException {
         String output = "";
         try {
             webDriver = createWebdriver.getGoogle(Constant.binaryGoogleHeroku);
@@ -124,10 +130,48 @@ public class GreedingController {
 
     }
 
+    @RequestMapping(value = "/startProxy", method = RequestMethod.GET)
+    public @ResponseBody
+    String startProxy() throws IOException {
+        try {
+            Thread startThread = new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        new ProxyWithSSH().run();
+                    } catch (Exception e) {
+                        e.getMessage();
+                    }
+
+                }
+            };
+            startThread.start();
+
+        } catch (Exception e) {
+            e.getMessage();
+            return "loi : " + e.getMessage();
+        }
+        return "running";
+    }
+
     @RequestMapping(value = "/checkIp", method = RequestMethod.GET)
     public @ResponseBody
     String checkIp(HttpServletResponse response) throws IOException {
         return getTextFromGit.getStringFromGithubRaw("http://checkip.dyndns.org/").get(0);
+    }
+
+    @RequestMapping(value = "/getInfoServer", method = RequestMethod.GET)
+    public @ResponseBody
+    Map<String, String> getInfoServer(HttpServletRequest request) throws IOException {
+        Map<String, String> result = new HashMap<>();
+
+        Enumeration headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String key = (String) headerNames.nextElement();
+            String value = request.getHeader(key);
+            result.put(key, value);
+        }
+        return result;
     }
 
     @RequestMapping(value = "/cmd", method = RequestMethod.GET)

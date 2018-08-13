@@ -8,7 +8,7 @@ package ConstantVariable;
 public interface ConstantFtpServer {
 
     static String homedir = "/config/ftp";
-    static String password = "ubnt";
-    static String username = "ubnt";
-    static String ip = "113.161.73.246";
+    static String password = "admin";
+    static String username = "admin";
+    static String ip = "206.214.13.39";
 }
