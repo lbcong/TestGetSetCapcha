@@ -113,13 +113,10 @@ public class GreedingController {
     public String selenium(HttpServletResponse response) throws IOException {
         String output = "";
         try {
-            webDriver = createWebdriver.getGoogle(Constant.binaryGoogleWindows);
-//            webDriver.navigate().to("https://appleid.apple.com/account#!&page=create");
-//            WebElement test = webDriver.findElement(By.xpath("//input[@placeholder='birthday']"));
-//            test.click();
-//            test.sendKeys("01/01/2000");
-            openTestSite();
-            return output;
+            webDriver = createWebdriver.getGoogle(Constant.binaryGoogleLinux);
+            webDriver.get("http://checkip.dyndns.org/");
+            WebElement input_signin = webDriver.findElement(By.tagName("body"));
+            return input_signin.getText();
         } catch (Exception e) {
             e.getMessage();
             return "loi : " + e.getMessage();

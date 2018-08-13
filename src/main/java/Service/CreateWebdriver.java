@@ -62,6 +62,7 @@ public class CreateWebdriver {
                 case "Windows":
                    
                     ChromeOptions optionswindow = new ChromeOptions();
+                    optionswindow.addArguments("--proxy-server=socks5://127.0.0.1:1080");
                     try {
                         webDriver = new ChromeDriver();
                     } catch (Exception e) {
