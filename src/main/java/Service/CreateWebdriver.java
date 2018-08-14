@@ -56,7 +56,7 @@ public class CreateWebdriver {
                 case "Linux":
                     ChromeOptions options = new ChromeOptions();
                     options.setBinary(binaryGoogle);
-                    options.addArguments("--proxy-server=socks5://localhost:1080");
+//                    options.addArguments("--proxy-server=socks5://localhost:1080");
                     webDriver = new ChromeDriver(options);
                     break;
                 case "Windows":
