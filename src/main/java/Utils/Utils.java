@@ -84,9 +84,9 @@ public class Utils {
                         "Key code not found for character '" + c + "'");
             }
             robot.keyPress(keyCode);
-            robot.delay(100);
+            robot.delay(400);
             robot.keyRelease(keyCode);
-            robot.delay(100);
+            robot.delay(444);
         }
     }
 }

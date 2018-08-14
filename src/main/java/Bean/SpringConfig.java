@@ -14,6 +14,8 @@ import Service.DowloadService;
 import Service.GetTextFromGit;
 import Service.PathDriver;
 import Utils.Utils;
+import java.awt.AWTException;
+import java.awt.Robot;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScans;
 
@@ -24,6 +26,11 @@ import org.springframework.context.annotation.ComponentScans;
     ,@ComponentScan(basePackages = "Utils")
 })
 public class SpringConfig {
+    
+    @Bean
+    public Robot robot() throws AWTException{
+        return new Robot();
+    }
     
     @Bean
     public GetTextFromGit getTextFromGit() {
