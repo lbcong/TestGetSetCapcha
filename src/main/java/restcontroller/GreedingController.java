@@ -29,6 +29,8 @@ import org.springframework.web.bind.annotation.RestController;
 import static Utils.Doc_file_kieu_binary.readFileBinary;
 import Service.DowloadService;
 import Service.GetTextFromGit;
+import Utils.Utils;
+import java.awt.Robot;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
@@ -49,6 +51,8 @@ public class GreedingController {
     CreateWebdriver createWebdriver;
     @Autowired
     GetTextFromGit getTextFromGit;
+    @Autowired
+    Utils utils;
 
     @RequestMapping(value = "/hello", method = RequestMethod.GET)
     public String greeding() {
@@ -119,9 +123,10 @@ public class GreedingController {
         String output = "";
         try {
             webDriver = createWebdriver.getGoogle(Constant.binaryGoogleHeroku);
-            webDriver.get("http://checkip.dyndns.org/");
-
-            return webDriver.getPageSource();
+//            webDriver.get("http://checkip.dyndns.org/");
+            openTestSite();
+            login("admin", "12345");
+            return getText();
         } catch (Exception e) {
             e.getMessage();
             return "loi : " + e.getMessage();
@@ -197,7 +202,11 @@ public class GreedingController {
         Thread.sleep(1000);
         WebElement submit_button = webDriver.findElement(By.xpath("//input[@value='Login']"));
         Thread.sleep(1000);
-        userName_editbox.sendKeys(username);
+        userName_editbox.click();
+        Thread.sleep(1000);
+        Robot robot = new Robot();
+        utils.sendKeys(robot, username);
+//        userName_editbox.sendKeys(username);
         Thread.sleep(1000);
         password_editbox.sendKeys(Password);
         Thread.sleep(1000);
@@ -205,7 +214,7 @@ public class GreedingController {
 
     }
 
-    public String getText() throws IOException, InterruptedException {
+    public String getText() throws IOException, InterruptedException ,Exception {
 
         Thread.sleep(1000);
         String text = webDriver.findElement(By.xpath("//div[@id='case_login']/h3")).getText();
