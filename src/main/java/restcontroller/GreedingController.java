@@ -196,9 +196,9 @@ public class GreedingController {
     public void login(String username, String Password) throws Exception, InterruptedException {
 
         Thread.sleep(1000);
-        WebElement userName_editbox = webDriver.findElement(By.id("usr"));
+        WebElement userName_editbox = webDriver.findElement(By.xpath("//input[@id='usr']"));
         Thread.sleep(1000);
-        WebElement password_editbox = webDriver.findElement(By.id("pwd"));
+        WebElement password_editbox = webDriver.findElement(By.xpath("//input[@id='pwd']"));
         Thread.sleep(1000);
         WebElement submit_button = webDriver.findElement(By.xpath("//input[@value='Login']"));
         Thread.sleep(1000);
