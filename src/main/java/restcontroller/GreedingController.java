@@ -211,7 +211,7 @@ public class GreedingController {
         password_editbox.sendKeys(Password);
         Thread.sleep(1000);
         submit_button.click();
-
+        System.out.println("xong ham login");
     }
 
     public String getText() throws IOException, InterruptedException ,Exception {
