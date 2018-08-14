@@ -6,6 +6,7 @@
 package Service;
 
 import Utils.Utils;
+import java.awt.Robot;
 import java.io.IOException;
 import java.util.List;
 import org.openqa.selenium.By;
@@ -30,7 +31,7 @@ public class Codenvy {
         try {
             lists = getTextFromGit.getStringFromGithubRaw("https://raw.githubusercontent.com/lbcong/SaveFileTemp/master/AccountSignUpOutLook.txt");
         } catch (IOException ex) {
-            System.out.println("gettext:"+ex.getMessage());
+            System.out.println("gettext:" + ex.getMessage());
         }
         boolean flag_wait = false;
         String str_username = lists.get(0);
@@ -46,7 +47,11 @@ public class Codenvy {
             }
             flag_wait = false;
             WebElement input_signin = webDriver.findElement(By.xpath("//input[@id='MemberName']"));
-            input_signin.sendKeys(str_username);
+            Robot robot = new Robot();
+            input_signin.click();
+            Thread.sleep(1000);
+            utils.sendKeys(robot, str_username);
+//            input_signin.sendKeys(str_username);
             webDriver.findElement(By.xpath("//input[@id='iSignupAction']")).click();
             // wait
             while (!flag_wait) {
