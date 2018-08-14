@@ -6,7 +6,6 @@
 package Service;
 
 import Utils.Utils;
-import java.awt.AWTException;
 import java.awt.Robot;
 import java.io.IOException;
 import java.util.List;
@@ -29,7 +28,7 @@ public class Codenvy {
     @Autowired
     Robot robot;
 
-    public byte[] Start(WebDriver webDriver) throws AWTException {
+    public byte[] Start(WebDriver webDriver)  {
         List<String> lists = null;
         try {
             lists = getTextFromGit.getStringFromGithubRaw("https://raw.githubusercontent.com/lbcong/SaveFileTemp/master/AccountSignUpOutLook.txt");
