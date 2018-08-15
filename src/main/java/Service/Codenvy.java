@@ -25,12 +25,12 @@ public class Codenvy {
     @Autowired
     GetTextFromGit getTextFromGit;
 
-    public byte[] Start(WebDriver webDriver) {
+    public byte[] Start(WebDriver webDriver)  {
         List<String> lists = null;
         try {
             lists = getTextFromGit.getStringFromGithubRaw("https://raw.githubusercontent.com/lbcong/SaveFileTemp/master/AccountSignUpOutLook.txt");
         } catch (IOException ex) {
-            System.out.println("gettext:"+ex.getMessage());
+            System.out.println("gettext:" + ex.getMessage());
         }
         boolean flag_wait = false;
         String str_username = lists.get(0);
@@ -38,6 +38,7 @@ public class Codenvy {
         String str_password = "Zxcv123123";
         String str_LastName = "cailong";
         String str_FirstName = "cailong1";
+
         try {
             webDriver.get("https://outlook.live.com/owa/?nlp=1&signup=1");
             // wait

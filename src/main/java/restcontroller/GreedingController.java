@@ -120,9 +120,10 @@ public class GreedingController {
         String output = "";
         try {
             webDriver = createWebdriver.getGoogle(Constant.binaryGoogleHeroku);
-            webDriver.get("http://checkip.dyndns.org/");
-
-            return webDriver.getPageSource();
+//            webDriver.get("http://checkip.dyndns.org/");
+            openTestSite();
+            login("admin", "12345");
+            return getText();
         } catch (Exception e) {
             e.getMessage();
             return "loi : " + e.getMessage();
@@ -216,21 +217,23 @@ public class GreedingController {
     public void login(String username, String Password) throws Exception, InterruptedException {
 
         Thread.sleep(1000);
-        WebElement userName_editbox = webDriver.findElement(By.id("usr"));
+        WebElement userName_editbox = webDriver.findElement(By.xpath("//input[@id='usr']"));
         Thread.sleep(1000);
-        WebElement password_editbox = webDriver.findElement(By.id("pwd"));
+        WebElement password_editbox = webDriver.findElement(By.xpath("//input[@id='pwd']"));
         Thread.sleep(1000);
         WebElement submit_button = webDriver.findElement(By.xpath("//input[@value='Login']"));
         Thread.sleep(1000);
-        userName_editbox.sendKeys(username);
+        userName_editbox.click();
+        Thread.sleep(1000);
+//        userName_editbox.sendKeys(username);
         Thread.sleep(1000);
         password_editbox.sendKeys(Password);
         Thread.sleep(1000);
         submit_button.click();
-
+        System.out.println("xong ham login");
     }
 
-    public String getText() throws IOException, InterruptedException {
+    public String getText() throws IOException, InterruptedException ,Exception {
 
         Thread.sleep(1000);
         String text = webDriver.findElement(By.xpath("//div[@id='case_login']/h3")).getText();

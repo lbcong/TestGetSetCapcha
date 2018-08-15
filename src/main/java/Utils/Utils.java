@@ -75,4 +75,18 @@ public class Utils {
         } catch (Throwable error) {
         }
     }
+    
+    public void sendKeys(Robot robot, String keys) {
+        for (char c : keys.toCharArray()) {
+            int keyCode = KeyEvent.getExtendedKeyCodeForChar(c);
+            if (KeyEvent.CHAR_UNDEFINED == keyCode) {
+                throw new RuntimeException(
+                        "Key code not found for character '" + c + "'");
+            }
+            robot.keyPress(keyCode);
+            robot.delay(400);
+            robot.keyRelease(keyCode);
+            robot.delay(444);
+        }
+    }
 }
