@@ -32,6 +32,7 @@ import Service.GetTextFromGit;
 import Service.ProxyWithSSH;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -112,6 +113,22 @@ public class GreedingController {
         }
 
         return "Hello";
+    }
+
+    @RequestMapping(value = "/getLocalIp", method = RequestMethod.GET)
+    public @ResponseBody
+    String getLocalIp() {
+
+        try {
+            InetAddress inetAddress = InetAddress.getLocalHost();
+            System.out.println("IP Address:- " + inetAddress.getHostAddress());
+            System.out.println("Host Name:- " + inetAddress.getHostName());
+            return "ip: "+inetAddress.getHostAddress()+" name: "+inetAddress.getHostName();
+        } catch (Exception e) {
+            e.getStackTrace();
+        }
+        return null;
+
     }
 
     @RequestMapping(value = "/openbrowser", method = RequestMethod.GET)
@@ -233,7 +250,7 @@ public class GreedingController {
         System.out.println("xong ham login");
     }
 
-    public String getText() throws IOException, InterruptedException ,Exception {
+    public String getText() throws IOException, InterruptedException, Exception {
 
         Thread.sleep(1000);
         String text = webDriver.findElement(By.xpath("//div[@id='case_login']/h3")).getText();

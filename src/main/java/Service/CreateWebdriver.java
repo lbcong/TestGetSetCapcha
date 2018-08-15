@@ -57,7 +57,7 @@ public class CreateWebdriver {
                     ChromeOptions options = new ChromeOptions();
                     options.setBinary(binaryGoogle);
 
-                    options.addArguments("--proxy-server=socks4://localhost:1080");
+                    options.addArguments("--proxy-server=socks4://0.0.0.0:1080");
 
                     webDriver = new ChromeDriver(options);
                     break;
