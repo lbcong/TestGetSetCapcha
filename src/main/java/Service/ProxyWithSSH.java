@@ -22,7 +22,7 @@ public class ProxyWithSSH extends Thread {
     @Autowired
     GetTextFromGit getTextFromGit;
 
-    String bindAddress = "127.0.0.1";
+    String bindAddress = "0.0.0.0";
     int socksPort = 1080;
     String user = "admin";
     String host = "206.214.13.39";
