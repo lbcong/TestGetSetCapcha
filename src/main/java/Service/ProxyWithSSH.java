@@ -22,7 +22,7 @@ public class ProxyWithSSH extends Thread {
     @Autowired
     GetTextFromGit getTextFromGit;
 
-    String bindAddress = "0.0.0.0";
+    String bindAddress = "";
     int socksPort = 1080;
     String user = "admin";
     String host = "206.214.13.39";
@@ -44,7 +44,7 @@ public class ProxyWithSSH extends Thread {
         int clientNumber = 0;
         session = session.Connect(user, host, sshPort, passwd);
         try {
-            baddress = InetAddress.getByName(bindAddress);
+            baddress = InetAddress.getByName(InetAddress.getLocalHost().getHostAddress());
             ss = new ServerSocket(socksPort, 0, baddress);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
