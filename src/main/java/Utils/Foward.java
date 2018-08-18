@@ -7,6 +7,7 @@ package Utils;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelDirectTCPIP;
+import com.jcraft.jsch.Session;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -20,21 +21,21 @@ public class Foward implements Runnable {
     InputStream in;
     String host;
     int port;
-    JSchSession jschSession;
+    Session session;
 
-    public Foward(String host, int port, OutputStream out, InputStream in, JSchSession jschSession) {
+    public Foward(String host, int port, OutputStream out, InputStream in, Session session) {
         this.port = port;
         this.host = host;
         this.in = in;
         this.out = out;
-        this.jschSession = jschSession;
+        this.session = session;
     }
 
     @Override
     public void run() {
         try {
-            jschSession.session.openChannel("direct-tcpip");
-            Channel channel = jschSession.session.openChannel("direct-tcpip");
+            session.openChannel("direct-tcpip");
+            Channel channel = session.openChannel("direct-tcpip");
             if (channel instanceof ChannelDirectTCPIP) {
                 ChannelDirectTCPIP localChannelDirectTCPIP = (ChannelDirectTCPIP) channel;
                 //day input len ssh

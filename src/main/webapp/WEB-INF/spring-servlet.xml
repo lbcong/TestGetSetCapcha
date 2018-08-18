@@ -29,16 +29,16 @@
     <context:component-scan base-package="restcontroller"></context:component-scan>
     <context:component-scan base-package="Bean"></context:component-scan>
     <context:component-scan base-package="Service"></context:component-scan>
-
+    <context:component-scan base-package="WebsocketConfig"></context:component-scan>
     
- 
+    <mvc:resources mapping="/css/**" location="/resources/css/"/>
+    <mvc:resources mapping="/js/**" location="/resources/js/"/>
     
     
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/"/>
         <property name="suffix" value=".jsp"/>
     </bean>
-<!--    <bean id="scheduler" class="restcontroller.Scheduler"/>-->
 
     <context:annotation-config/>
     <mvc:annotation-driven />

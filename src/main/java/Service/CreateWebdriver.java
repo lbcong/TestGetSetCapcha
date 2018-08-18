@@ -1,10 +1,8 @@
 package Service;
 
 import Bean.SystemConfig;
-import ConstantVariable.Constant;
 import java.io.File;
 import java.net.InetAddress;
-import org.openqa.selenium.Proxy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -57,15 +55,18 @@ public class CreateWebdriver {
                 case "Linux":
                     ChromeOptions options = new ChromeOptions();
                     options.setBinary(binaryGoogle);
-                    String str = "--proxy-server=socks4://"+InetAddress.getLocalHost().getHostAddress()+":1080";
-                    options.addArguments(str);
+//                    String str_proxy_linux = "--proxy-server=socks4://"+InetAddress.getLocalHost().getHostAddress()+":1080";
+                    String str_proxy_linux = "--proxy-server=socks4://127.0.0.1:1080";
+                    options.addArguments(str_proxy_linux);
 
                     webDriver = new ChromeDriver(options);
                     break;
                 case "Windows":
-                   
+
                     ChromeOptions optionswindow = new ChromeOptions();
-                    optionswindow.addArguments("--proxy-server=socks4://localhost:1080");
+//                    String str_proxy_windows = "--proxy-server=socks4://"+InetAddress.getLocalHost().getHostAddress()+":1080";
+                    String str_proxy_windows = "--proxy-server=socks4://127.0.0.1:1080";
+                    optionswindow.addArguments(str_proxy_windows);
                     try {
                         webDriver = new ChromeDriver(optionswindow);
                     } catch (Exception e) {

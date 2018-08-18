@@ -24,12 +24,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
 import org.springframework.web.bind.annotation.RestController;
 import static Utils.Doc_file_kieu_binary.readFileBinary;
 import Service.DowloadService;
 import Service.GetTextFromGit;
-import Service.ProxyWithSSH;
+import Service.SendRequest;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
@@ -51,10 +50,12 @@ public class GreedingController {
     CreateWebdriver createWebdriver;
     @Autowired
     GetTextFromGit getTextFromGit;
+    @Autowired
+    SendRequest sendRequest;
 
     @RequestMapping(value = "/hello", method = RequestMethod.GET)
     public String greeding() {
-        return "Hello ";
+        return "Hello";
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.GET)
@@ -115,22 +116,6 @@ public class GreedingController {
         return "Hello";
     }
 
-    @RequestMapping(value = "/getLocalIp", method = RequestMethod.GET)
-    public @ResponseBody
-    String getLocalIp() {
-
-        try {
-            InetAddress inetAddress = InetAddress.getLocalHost();
-            System.out.println("IP Address:- " + inetAddress.getHostAddress());
-            System.out.println("Host Name:- " + inetAddress.getHostName());
-            return "ip: "+inetAddress.getHostAddress()+" name: "+inetAddress.getHostName();
-        } catch (Exception e) {
-            e.getStackTrace();
-        }
-        return null;
-
-    }
-
     @RequestMapping(value = "/openbrowser", method = RequestMethod.GET)
     public @ResponseBody
     String selenium(HttpServletResponse response) throws IOException {
@@ -138,44 +123,14 @@ public class GreedingController {
         try {
             webDriver = createWebdriver.getGoogle(Constant.binaryGoogleHeroku);
 //            webDriver.get("http://checkip.dyndns.org/");
-            openTestSite();
-            login("admin", "12345");
+//            openTestSite();
+//            login("admin", "12345");
             return getText();
         } catch (Exception e) {
             e.getMessage();
             return "loi : " + e.getMessage();
         }
 
-    }
-
-    @RequestMapping(value = "/startProxy", method = RequestMethod.GET)
-    public @ResponseBody
-    String startProxy() throws IOException {
-        try {
-            Thread startThread = new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        new ProxyWithSSH().run();
-                    } catch (Exception e) {
-                        e.getMessage();
-                    }
-
-                }
-            };
-            startThread.start();
-
-        } catch (Exception e) {
-            e.getMessage();
-            return "loi : " + e.getMessage();
-        }
-        return "running";
-    }
-
-    @RequestMapping(value = "/checkIp", method = RequestMethod.GET)
-    public @ResponseBody
-    String checkIp(HttpServletResponse response) throws IOException {
-        return getTextFromGit.getStringFromGithubRaw("http://checkip.dyndns.org/").get(0);
     }
 
     @RequestMapping(value = "/getInfoServer", method = RequestMethod.GET)
@@ -192,43 +147,16 @@ public class GreedingController {
         return result;
     }
 
-    @RequestMapping(value = "/cmd", method = RequestMethod.GET)
-    public String greeding(@RequestParam(value = "cmd", required = true) String cmd) {
-        String output = "";
-        try {
-            output = executeCommand(cmd);
-            return output;
-        } catch (Exception e) {
-            e.getMessage();
-            return e.getMessage();
-        }
-
+    @RequestMapping(value = "/checkIp", method = RequestMethod.GET)
+    public @ResponseBody
+    String checkIp(HttpServletResponse response) throws IOException {
+        return getTextFromGit.getStringFromGithubRaw("http://checkip.dyndns.org/").get(0);
     }
 
-    public String executeCommand(String command) {
-
-        StringBuffer output = new StringBuffer();
-
-        Process p;
-        try {
-            p = Runtime.getRuntime().exec(command);
-            Thread.sleep(2000);
-            p.waitFor();
-            Thread.sleep(2000);
-            BufferedReader reader
-                    = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-                output.append(line + "\n");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return output.toString();
-
+    @RequestMapping(value = "/testSendRQ", method = RequestMethod.GET)
+    public @ResponseBody
+    String testSendRQ(HttpServletResponse response) throws IOException {
+        return "";
     }
 
     public void login(String username, String Password) throws Exception, InterruptedException {

@@ -5,6 +5,7 @@
  */
 package Utils;
 
+import com.jcraft.jsch.Session;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,12 +20,12 @@ public class Worker implements Runnable {
 
     private int clientNumber;
     private Socket socketOfServer;
-    JSchSession session;
+    Session session;
     OutputStream out;
     InputStream in;
     byte[] buff = new byte[1024];
 
-    public Worker(Socket socketOfServer, int clientNumber, JSchSession session) {
+    public Worker(Socket socketOfServer,Session session) {
         this.clientNumber = clientNumber;
         this.socketOfServer = socketOfServer;
         this.session = session;

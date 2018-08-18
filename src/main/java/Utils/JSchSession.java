@@ -21,12 +21,10 @@ import java.util.logging.Logger;
  */
 public class JSchSession {
 
-    JSch jsch = new JSch();
-    Session session;
-
-    public JSchSession Connect(String user, String host, int port, String passwd) {
+    public static Session Connect(String user, String host, int port, String passwd) {
         try {
-            session = jsch.getSession(user, host, port);
+            JSch jsch = new JSch();
+            Session session = jsch.getSession(user, host, port);
             session.setConfig("StrictHostKeyChecking", "no");
             session.setConfig("GSSAPIAuthentication", "no");
             session.setConfig("kex", "diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group-exchange-sha256");
@@ -37,7 +35,7 @@ public class JSchSession {
             session.connect(10000);
             if (session.isConnected()) {
                 System.out.println("connect success");
-                return this;
+                return session;
             }
         } catch (Exception e) {
         }

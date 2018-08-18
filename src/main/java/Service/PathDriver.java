@@ -49,14 +49,10 @@ public class PathDriver {
         webDriverGoogle = "webdriver.chrome.driver";
         switch (SystemCofig.os) {
             case "Linux":
-
                 dirDriverGoogle = Constant.dirDriverGoogleHeroku;
-
                 break;
             case "Windows":
-
-                dirDriverGoogle = realpath + File.separator + "chromedriver.exe";
-
+                dirDriverGoogle = realpath +"chromedriver.exe";
                 break;
         }
 

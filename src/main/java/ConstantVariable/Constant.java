@@ -10,6 +10,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public interface Constant {
 
+    String Sucess = "Success";
+    String Fail = "Fail";
+    String Actived = "Actived";
+    String Creating = "Creating";
+    String Close = "Close";
+    int Time_Limit_Waiting_Change_Ssh = 10;
+    
+    String API_KEY = "ceacd60a62c2d9bd987294cece4684ba";
+    String Url_2Capcha_Get = "http://2captcha.com/res.php";
+    String Url_2Capcha_Post = "http://2captcha.com/in.php";
+    
+    String Key_Tracer = "Tracer";
+    String Key_Auto = "Auto";
+
     String typeKeyPub = ".pub";
     String typeKeyPPK = ".ppk";
 
@@ -22,18 +36,18 @@ public interface Constant {
     String dirKey = "/app/key/";
     String binaryFirefoxLinux = "/usr/bin/firefox";
     String binaryFirefoxWindows = "E:\\Soft\\FirefoxPortable\\App\\Firefox64\\firefox.exe";
-    
-    String dirDriverFirefoxGoogleCloud="";
-    String dirDriverGoogleChromeGoogleCloud="";
+
+    String dirDriverFirefoxGoogleCloud = "";
+    String dirDriverGoogleChromeGoogleCloud = "";
     String dirDriverGoogleHeroku = "/app/chromedriver";
     String dirDriverFirefoxHeroku = "/app/firefox";
-    
+
     String binaryGoogleHeroku = "/app/.apt/usr/bin/google-chrome";
     String binaryGoogleLinux = "/usr/bin/google-chrome";
     String binaryGoogleWindows = "E:\\Soft\\gg\\App\\Chrome-bin\\chrome.exe";
 
     String xpathCapcha = "//img[@aria-label='Visual Challenge']";
-    
-    String userCodenvy="hacklslol3@yahoo.com";
-    String passCodenvy="lisatthu35";
+
+    String userCodenvy = "hacklslol3@yahoo.com";
+    String passCodenvy = "lisatthu35";
 }

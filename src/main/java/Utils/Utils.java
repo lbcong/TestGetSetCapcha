@@ -22,6 +22,17 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  */
 public class Utils {
 
+    public void waitForUrlLoading(WebDriver driver, String targetXpath) {
+        WebElement element = null;
+        while (true) {
+            try {
+                element = driver.findElement(By.xpath(targetXpath));
+            } catch (Exception e) {
+                break;
+            }
+        }
+    }
+
     public boolean isBrowserClosed(WebDriver driver) {
         boolean isClosed = false;
         try {
@@ -62,12 +73,11 @@ public class Utils {
     }
 
     public void waitForPageLoaded(WebDriver driver) {
-        ExpectedCondition<Boolean> expectation = new
-                ExpectedCondition<Boolean>() {
-                    public Boolean apply(WebDriver driver) {
-                        return ((JavascriptExecutor) driver).executeScript("return document.readyState").toString().equals("complete");
-                    }
-                };
+        ExpectedCondition<Boolean> expectation = new ExpectedCondition<Boolean>() {
+            public Boolean apply(WebDriver driver) {
+                return ((JavascriptExecutor) driver).executeScript("return document.readyState").toString().equals("complete");
+            }
+        };
         try {
             Thread.sleep(1000);
             WebDriverWait wait = new WebDriverWait(driver, 30);
@@ -75,7 +85,7 @@ public class Utils {
         } catch (Throwable error) {
         }
     }
-    
+
     public void sendKeys(Robot robot, String keys) {
         for (char c : keys.toCharArray()) {
             int keyCode = KeyEvent.getExtendedKeyCodeForChar(c);
