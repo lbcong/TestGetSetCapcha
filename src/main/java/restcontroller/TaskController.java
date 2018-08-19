@@ -58,7 +58,11 @@ public class TaskController {
         for (String item : codenvy.getListAccountCreated()) {
             str = str + item;
         }
-        this.template.convertAndSend("/auto/greetings", "tong acc can tao" + codenvy.getNumber_acc_must_create() + " tong acc da tao: " + codenvy.getNumber_acc_created() + " tong acc tao fail " + codenvy.getNumber_acc_fail()+str);
+        this.template.convertAndSend("/auto/greetings", "tong acc can tao" + codenvy.getNumber_acc_must_create() + " tong acc da tao: " + codenvy.getNumber_acc_created() + " tong acc tao fail " + codenvy.getNumber_acc_fail() + str);
+    }
+
+    public void reportError(String str) throws InterruptedException {
+        this.template.convertAndSend("/error/greetings", str);
     }
 
     // lien tuc kiem tra se ket noi den ssh co con ket noi ko

@@ -45,6 +45,9 @@
         <div>
             <p id="status_auto"></p>
         </div>
+        <div>
+            <p id="error"></p>
+        </div>
         <script type="text/javascript">
             var stompClient = null;
 
@@ -62,12 +65,13 @@
                     setConnected(true);
                     console.log('Connected: ' + frame);
                     stompClient.subscribe('/topic/greetings', function (greeting) {
-                        console.log(greeting);
                         showGreeting(greeting.body);
                     });
                     stompClient.subscribe('/auto/greetings', function (greeting) {
-                        console.log(greeting);
                         displayAutoStatus(greeting.body);
+                    });
+                    stompClient.subscribe('/error/greetings', function (greeting) {
+                        displayError(greeting.body);
                     });
                 });
             }
@@ -156,6 +160,9 @@
             function displayAutoStatus(data) {
                 $('#status_auto').text(data);
                 $('#status_auto').css('display', 'block');
+            }
+            function displayError(data) {
+                $('#error').append("<p>"+data+"</p>");
             }
         </script>
     </body>

@@ -16,12 +16,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CheckCapcha {
-    
+
     @Autowired
     Utils utils;
     @Autowired
     ProxyWithSSH proxyWithSSH;
-    
+
     public String Check(WebDriver webDriver, String capchaText) {
         try {
             WebElement input_capcha = webDriver.findElement(By.xpath("//input[@type='text']"));
@@ -64,12 +64,12 @@ public class CheckCapcha {
                 System.out.println("nhap that bai do verifi mobi");
                 return Constant.Fail;
             }
-            
+
         } catch (Exception ex) {
             // ip loi
             System.out.println(ex.getMessage());
             return Constant.Fail;
         }
     }
-    
+
 }
