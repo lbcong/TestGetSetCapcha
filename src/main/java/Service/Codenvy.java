@@ -70,16 +70,6 @@ public class Codenvy {
                 str_username = lists.get(number_acc_created) + rd.nextInt(9999);
                 insertInfoAccount(webDriver, str_username, str_password, str_LastName, str_FirstName);
 
-                Thread.sleep(1500);
-                while (true) {
-                    try {
-                        select = new Select(webDriver.findElement(By.xpath("//input[@id='iSignupAction']']")));
-                        checkConnect();
-                    } catch (Exception e) {
-                        break;
-                    }
-                }
-
 //                try {
 //                    element = webDriver.findElement(By.xpath("//a[@class='btn btn-block captchaHIPLinks']"));
 //                } catch (Exception e) {
@@ -89,7 +79,6 @@ public class Codenvy {
 //                    proxyWithSSH.changeIp();
 //                    continue;
 //                }
-
                 // wait
                 while (!flag_wait) {
                     flag_wait = utils.waitForPresence(webDriver, 5000, "//img[@aria-label='Visual Challenge']");
@@ -136,7 +125,7 @@ public class Codenvy {
                 //check connect 
                 checkConnect();
 
-               ObjectJson responseObjectGet = sendRequest.sendGet(Constant.API_KEY, responseObjectPost.getRequest());
+                ObjectJson responseObjectGet = sendRequest.sendGet(Constant.API_KEY, responseObjectPost.getRequest());
                 taskController.reportError("ket qua tra ve method get: " + responseObjectGet.getRequest());
                 switch (responseObjectGet.getRequest()) {
                     case "CAPCHA_NOT_READY":

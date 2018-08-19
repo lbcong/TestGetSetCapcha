@@ -13,10 +13,13 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import restcontroller.TaskController;
 
 @Service
 public class CheckCapcha {
-
+    
+    @Autowired
+    TaskController taskController;
     @Autowired
     Utils utils;
     @Autowired
@@ -24,9 +27,10 @@ public class CheckCapcha {
 
     public String Check(WebDriver webDriver, String capchaText) {
         try {
-            WebElement input_capcha = webDriver.findElement(By.xpath("//input[@type='text']"));
-            WebElement button_submit = webDriver.findElement(By.xpath("//input[@type='submit' and @id='iSignupAction']"));
-            input_capcha.sendKeys(capchaText);
+            WebElement element = null;
+            element = webDriver.findElement(By.xpath("//input[@type='text']"));
+            element.sendKeys(capchaText);
+            element = webDriver.findElement(By.xpath("//input[@type='submit' and @id='iSignupAction']"));
             Thread.sleep(2000);
             //check connect 
             while (proxyWithSSH.getSession() == null) {
@@ -35,34 +39,49 @@ public class CheckCapcha {
             if (!proxyWithSSH.checkSshlive()) {
                 proxyWithSSH.changeIp();
             }
-            button_submit.click();
+            int hash_element_truoc_submit = webDriver.findElement(By.xpath("//input[@id='iSignupAction']")).hashCode();
+            taskController.reportError("hash trc submit:"+hash_element_truoc_submit);
+            element.click();
             int counter = 0;
-            while (counter <= 5) {
-                counter++;
-                Thread.sleep(1000);
-                try {
-                    input_capcha = webDriver.findElement(By.xpath("//div[contains(@aria-label,'try again')]"));
-                    System.out.println("nhap that bai do capcha sai");
-                    return Constant.Fail;
-                } catch (Exception e) {
-                }
-            }
 
-            // doi load trang
+//            while (counter <= 5) {
+//                counter++;
+//                Thread.sleep(1000);
+//                try {
+//                    element = webDriver.findElement(By.xpath("//div[contains(@aria-label,'try again')]"));
+//                    System.out.println("nhap that bai do capcha sai");
+//                    return Constant.Fail;
+//                } catch (Exception e) {
+//                }
+//            }
+
+            int hash_element_sau_submit = hash_element_truoc_submit;
             while (true) {
+                Thread.sleep(500);
                 try {
-                    input_capcha = webDriver.findElement(By.xpath(Constant.xpathCapcha));
+                    // element sau submit
+                    hash_element_sau_submit = webDriver.findElement(By.xpath("//input[@id='iSignupAction']")).hashCode();
+                     taskController.reportError("hash sau submit:"+hash_element_sau_submit);
+                    //neu if true  >> da load xong va chay vao trang verifi mobile
+                    if (!(hash_element_truoc_submit == hash_element_sau_submit)) {
+                        taskController.reportError("nhap that bai do verifi mobi");
+                        System.out.println("nhap that bai do verifi mobi");
+                        return Constant.Fail;
+                    }
+
                 } catch (Exception e) {
-                    break;
+                    try {
+                        // load xong nhung tim sai
+                        element = webDriver.findElement(By.xpath("//i[@class='ms-Icon ms-Icon--ChevronRight']"));
+                        taskController.reportError("tao thanh cong :");
+                        System.out.println("nhap than cong");
+                        return Constant.Sucess;
+                    } catch (Exception ex) {
+                        taskController.reportError("dang load trang sau khi nhap capcha");
+                        // load chua xong se xuong day
+                        // tiep tuc lap
+                    }
                 }
-            }
-            // ktra nhap capcha dung hay khong
-            if ("Creating your mailbox".equals(webDriver.getTitle())) {
-                System.out.println("nhap than cong");
-                return Constant.Sucess;
-            } else {
-                System.out.println("nhap that bai do verifi mobi");
-                return Constant.Fail;
             }
 
         } catch (Exception ex) {

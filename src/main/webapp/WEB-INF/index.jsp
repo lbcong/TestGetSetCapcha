@@ -46,7 +46,7 @@
             <p id="status_auto"></p>
         </div>
         <div>
-            <p id="error"></p>
+            <textarea style="height: 300px;width: 400px" id="error"></textarea>
         </div>
         <script type="text/javascript">
             var stompClient = null;
@@ -162,7 +162,10 @@
                 $('#status_auto').css('display', 'block');
             }
             function displayError(data) {
-                $('#error').append("<p>"+data+"</p>");
+                var psconsole = $('#error');
+                psconsole.append("\n" + data);
+                if (psconsole.length)
+                    psconsole.scrollTop(psconsole[0].scrollHeight - psconsole.height());
             }
         </script>
     </body>
