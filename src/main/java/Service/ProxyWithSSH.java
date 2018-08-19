@@ -97,7 +97,7 @@ public class ProxyWithSSH {
                 Socket socketOfServer = null;
                 try {
                     socketOfServer = ss.accept();
-                    System.out.println("open new socket : " + " port: " + socketOfServer.getPort());
+//                    System.out.println("open new socket : " + " port: " + socketOfServer.getPort());
                     new Worker(socketOfServer, session).run();
                 } catch (Exception e) {
                     if (ss == null) {

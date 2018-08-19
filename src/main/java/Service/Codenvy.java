@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,20 +66,44 @@ public class Codenvy {
         String status_capcha_result = "";
         WebElement element = null;
         Select select = null;
+        int counter = 0;
+        String text_capcha = null;
         try {
             while (number_acc_created <= number_acc_must_create) {
                 str_username = lists.get(number_acc_created) + rd.nextInt(9999);
                 insertInfoAccount(webDriver, str_username, str_password, str_LastName, str_FirstName);
+                String button_after_subit = ((RemoteWebElement) webDriver.findElement(By.xpath("//input[@id='iSignupAction']"))).getId();
+                String button_next = "";
 
-//                try {
-//                    element = webDriver.findElement(By.xpath("//a[@class='btn btn-block captchaHIPLinks']"));
-//                } catch (Exception e) {
-//                    while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
-//                        Thread.sleep(500);
-//                    }
-//                    proxyWithSSH.changeIp();
-//                    continue;
-//                }
+                // ktra truong hop bi verifi truoc khi nhap capcha
+                counter = 0;
+                while (counter < 100) {
+                    Thread.sleep(500);
+                    try {
+                        button_next = ((RemoteWebElement) webDriver.findElement(By.xpath("//input[@id='iSignupAction']"))).getId();
+                        // if true >> load xong roi
+                        if (!(button_after_subit.equals(button_next))) {
+                            // co 2 th xay ra verifi hoac capcha
+                            webDriver.findElement(By.xpath(Constant.xpathCapcha));
+                            break;
+                        }
+                        // if false chua load xong
+                    } catch (Exception e) {
+                        // dang load hoac verifi
+                        try {
+                            webDriver.findElement(By.xpath("//input[@id='iSignupAction']"));
+                            while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
+                                Thread.sleep(500);
+                            }
+                            proxyWithSSH.changeIp();
+                            continue;
+                        } catch (Exception ex) {
+                            // dang load
+                        }
+                    }
+                    counter++;
+                }
+
                 // wait
                 while (!flag_wait) {
                     flag_wait = utils.waitForPresence(webDriver, 5000, "//img[@aria-label='Visual Challenge']");
@@ -93,7 +118,7 @@ public class Codenvy {
                 //check connect 
                 checkConnect();
                 // gui base64 img qua cho service send bang method post va get ket qua
-                Thread.sleep(2000);
+                Thread.sleep(3000);
                 ObjectJson responseObjectPost = sendRequest.sendPost(Constant.API_KEY, rs);
                 taskController.reportError("ket qua tra ve method post: " + responseObjectPost.getRequest());
                 switch (responseObjectPost.getRequest()) {
@@ -104,52 +129,51 @@ public class Codenvy {
                         System.out.println("Service.Codenvy.Start()");
                         break;
                     case "ERROR_IP_NOT_ALLOWED":
-                        System.out.println("Service.Codenvy.Start()");
+                        System.exit(0);
                         break;
                     case "IP_BANNED":
-                        System.out.println("Service.Codenvy.Start()");
+                        System.exit(0);
                         break;
                     case "MAX_USER_TURN":
-                        System.out.println("Service.Codenvy.Start()");
-                        break;
+                        webDriver.manage().deleteAllCookies();
+                        continue;
                     case "NNNN":
-                        System.out.println("Service.Codenvy.Start()");
-                        break;
+                        webDriver.manage().deleteAllCookies();
+                        continue;
 
                 }
 
                 // doi 5-10sgui request de get text
-                String text_capcha = null;
-
                 Thread.sleep(5000);
                 //check connect 
                 checkConnect();
 
                 ObjectJson responseObjectGet = sendRequest.sendGet(Constant.API_KEY, responseObjectPost.getRequest());
                 taskController.reportError("ket qua tra ve method get: " + responseObjectGet.getRequest());
+                // kiem tra request ma no gui ve la gi so sanh voi cac ma~ loi neu gap loi thi` bat gui lai
                 switch (responseObjectGet.getRequest()) {
                     case "CAPCHA_NOT_READY":
-                        Thread.sleep(5000);
+                        Thread.sleep(7000);
                         responseObjectGet = sendRequest.sendGet(Constant.API_KEY, responseObjectPost.getRequest());
+                        taskController.reportError("ket qua tra ve method get: " + responseObjectGet.getRequest());
                         break;
                     case "ERROR_CAPTCHA_UNSOLVABLE":
                         webDriver.manage().deleteAllCookies();
                         continue;
                     case "ERROR_KEY_DOES_NOT_EXIST":
-                        System.out.println("Service.Codenvy.Start()");
-                        break;
+                        webDriver.manage().deleteAllCookies();
+                        continue;
                     case "ERROR_WRONG_CAPTCHA_ID":
-                        System.out.println("Service.Codenvy.Start()");
-                        break;
+                        webDriver.manage().deleteAllCookies();
+                        continue;
                     case "ERROR_BAD_DUPLICATES":
-                        System.out.println("Service.Codenvy.Start()");
-                        break;
+                        webDriver.manage().deleteAllCookies();
+                        continue;
                     case "NNNN	":
-                        System.out.println("Service.Codenvy.Start()");
-                        break;
+                        webDriver.manage().deleteAllCookies();
+                        continue;
                 }
 
-                // kiem tra request ma no gui ve la gi so sanh voi cac ma~ loi neu gap loi thi` bat gui lai
                 text_capcha = responseObjectGet.getRequest();
 
                 // get text va` kiem tra status cua json neu thanh cong thi input text vao capcha

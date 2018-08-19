@@ -44,7 +44,7 @@ public class Foward implements Runnable {
                 localChannelDirectTCPIP.setOutputStream(out);
                 localChannelDirectTCPIP.setHost(host);
                 localChannelDirectTCPIP.setPort(port);
-                System.out.println("open chanel to foward " + "host: " + host + " port:" + port);
+//                System.out.println("open chanel to foward " + "host: " + host + " port:" + port);
                 localChannelDirectTCPIP.connect();
             }
         } catch (Exception e) {

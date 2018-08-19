@@ -30,6 +30,9 @@ public class CheckCapcha {
         try {
             WebElement element = null;
             element = webDriver.findElement(By.xpath("//input[@type='text']"));
+            // img truoc khi nhap capcha
+            String img1 = ((RemoteWebElement) webDriver.findElement(By.xpath(Constant.xpathCapcha))).getId();
+            System.out.println("hash img1 truoc submit:" + img1);
             element.sendKeys(capchaText);
             element = webDriver.findElement(By.xpath("//input[@type='submit' and @id='iSignupAction']"));
             Thread.sleep(2000);
@@ -40,50 +43,50 @@ public class CheckCapcha {
             if (!proxyWithSSH.checkSshlive()) {
                 proxyWithSSH.changeIp();
             }
-            String hash_element_truoc_submit = ((RemoteWebElement) element).getId();
-            taskController.reportError("hash trc submit:" + hash_element_truoc_submit);
             element.click();
-//            int counter = 0;
-
-//            while (counter <= 5) {
-//                counter++;
-//                Thread.sleep(1000);
-//                try {
-//                    element = webDriver.findElement(By.xpath("//div[contains(@aria-label,'try again')]"));
-//                    System.out.println("nhap that bai do capcha sai");
-//                    return Constant.Fail;
-//                } catch (Exception e) {
-//                }
-//            }
-            String hash_element_sau_submit = hash_element_truoc_submit;
-            while (true) {
-                Thread.sleep(500);
+            String img2 = "";
+            int counter = 0;
+            while (counter < 2000) {
+                Thread.sleep(300);
                 try {
-                    // element sau submit
-                    hash_element_sau_submit = ((RemoteWebElement) webDriver.findElement(By.xpath("//input[@id='iSignupAction']"))).getId();
-                    taskController.reportError("hash sau submit:" + hash_element_sau_submit);
-                    //neu if true  >> da load xong va chay vao trang verifi mobile
-                    if (!(hash_element_truoc_submit.equals(hash_element_sau_submit))) {
+                    //ktr con dang tren trang vs load xong
+                    img2 = ((RemoteWebElement) webDriver.findElement(By.xpath(Constant.xpathCapcha))).getId();
+                    if (!(img1.equals(img2))) {
+                        taskController.reportError("nhap that bai do nhap sai capcha");
+                        System.out.println("nhap that bai do nhap sai capcha");
+                        return Constant.Fail;
+                    }
+                } catch (Exception e) {
+                    try {
+                        // ko can ktr con dang tren trang ko
+                        //dang load vs load xong roi
+                        // element sau submit
+                        webDriver.findElement(By.xpath("//input[@id='iSignupAction']"));
+                        // khong tra ve exception >> dang o? tra verifi
+                        // tra ve exception >> dang o? trang success
+//                                            >> dang load
                         taskController.reportError("nhap that bai do verifi mobi");
                         System.out.println("nhap that bai do verifi mobi");
                         return Constant.Fail;
-                    }
-
-                } catch (Exception e) {
-                    try {
-                        // load xong nhung tim sai
-                        element = webDriver.findElement(By.xpath("//i[@class='ms-Icon ms-Icon--ChevronRight']"));
-                        taskController.reportError("tao thanh cong :");
-                        System.out.println("nhap than cong");
-                        return Constant.Sucess;
-                    } catch (Exception ex) {
-                        taskController.reportError("dang load trang sau khi nhap capcha");
-                        // load chua xong se xuong day
-                        // tiep tuc lap
+//                        }
+                    } catch (Exception ex1) {
+                        //load xong roi tim sai vs dang load
+                        try {
+                            // load xong nhung tim sai
+                            webDriver.findElement(By.xpath("//i[@class='ms-Icon ms-Icon--ChevronRight']"));
+                            taskController.reportError("tao thanh cong :");
+                            System.out.println("nhap than cong");
+                            return Constant.Sucess;
+                        } catch (Exception ex2) {
+                            taskController.reportError("dang load trang sau khi nhap capcha");
+                            // load chua xong se xuong day
+                            // tiep tuc lap
+                        }
                     }
                 }
+                counter++;
             }
-
+            return Constant.Fail;
         } catch (Exception ex) {
             // ip loi
             System.out.println(ex.getMessage());
