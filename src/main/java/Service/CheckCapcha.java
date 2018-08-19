@@ -11,13 +11,14 @@ import Utils.Utils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.RemoteWebElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import restcontroller.TaskController;
 
 @Service
 public class CheckCapcha {
-    
+
     @Autowired
     TaskController taskController;
     @Autowired
@@ -39,10 +40,10 @@ public class CheckCapcha {
             if (!proxyWithSSH.checkSshlive()) {
                 proxyWithSSH.changeIp();
             }
-            int hash_element_truoc_submit = webDriver.findElement(By.xpath("//input[@id='iSignupAction']")).hashCode();
-            taskController.reportError("hash trc submit:"+hash_element_truoc_submit);
+            String hash_element_truoc_submit = ((RemoteWebElement) element).getId();
+            taskController.reportError("hash trc submit:" + hash_element_truoc_submit);
             element.click();
-            int counter = 0;
+//            int counter = 0;
 
 //            while (counter <= 5) {
 //                counter++;
@@ -54,16 +55,15 @@ public class CheckCapcha {
 //                } catch (Exception e) {
 //                }
 //            }
-
-            int hash_element_sau_submit = hash_element_truoc_submit;
+            String hash_element_sau_submit = hash_element_truoc_submit;
             while (true) {
                 Thread.sleep(500);
                 try {
                     // element sau submit
-                    hash_element_sau_submit = webDriver.findElement(By.xpath("//input[@id='iSignupAction']")).hashCode();
-                     taskController.reportError("hash sau submit:"+hash_element_sau_submit);
+                    hash_element_sau_submit = ((RemoteWebElement) webDriver.findElement(By.xpath("//input[@id='iSignupAction']"))).getId();
+                    taskController.reportError("hash sau submit:" + hash_element_sau_submit);
                     //neu if true  >> da load xong va chay vao trang verifi mobile
-                    if (!(hash_element_truoc_submit == hash_element_sau_submit)) {
+                    if (!(hash_element_truoc_submit.equals(hash_element_sau_submit))) {
                         taskController.reportError("nhap that bai do verifi mobi");
                         System.out.println("nhap that bai do verifi mobi");
                         return Constant.Fail;
