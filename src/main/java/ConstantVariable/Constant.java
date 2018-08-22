@@ -47,7 +47,4 @@ public interface Constant {
     String binaryGoogleWindows = "E:\\Soft\\gg\\App\\Chrome-bin\\chrome.exe";
 
     String xpathCapcha = "//img[@aria-label='Visual Challenge']";
-
-    String userCodenvy = "hacklslol3@yahoo.com";
-    String passCodenvy = "lisatthu35";
 }

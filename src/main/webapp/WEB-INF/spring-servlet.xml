@@ -18,11 +18,7 @@
 		http://www.springframework.org/schema/context/spring-context-3.0.xsd
                 
                 http://www.springframework.org/schema/mvc 
-                http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
-                
-
-"
-                
+                http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd"
 >
 
     
@@ -30,7 +26,7 @@
     <context:component-scan base-package="Bean"></context:component-scan>
     <context:component-scan base-package="Service"></context:component-scan>
     <context:component-scan base-package="WebsocketConfig"></context:component-scan>
-    
+    <context:component-scan base-package="Repository"></context:component-scan>
     <mvc:resources mapping="/css/**" location="/resources/css/"/>
     <mvc:resources mapping="/js/**" location="/resources/js/"/>
     
@@ -42,9 +38,4 @@
 
     <context:annotation-config/>
     <mvc:annotation-driven />
-
-
-    
-  
-    
 </beans>

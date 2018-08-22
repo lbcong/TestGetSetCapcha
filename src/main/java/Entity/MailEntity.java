@@ -5,12 +5,17 @@
  */
 package Entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
+
 /**
  *
  * @author Alex
  */
-public class AutoInfo {
-    SshInfo sshInfo;
-    
-    
+public class MailEntity {
+
+    @JsonProperty("data")
+    List<DataObjectMail> data;
+    @JsonProperty("message")
+    String message;
 }

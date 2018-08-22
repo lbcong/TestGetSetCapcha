@@ -41,7 +41,7 @@ public class SSHService {
             }
             return listsSshInfo;
         } catch (Exception ex) {
-            System.out.println("gettext:" + ex.getMessage());
+            System.out.println("loi luc get text tu github:" + ex.getMessage());
         }
         return null;
     }

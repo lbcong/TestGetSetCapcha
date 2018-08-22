@@ -11,24 +11,17 @@ import Service.CheckCapcha;
 import Service.Codenvy;
 import Service.CreateWebdriver;
 import Service.ProxyWithSSH;
-import com.jcraft.jsch.Session;
 import java.io.IOException;
-import java.util.Base64;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.remote.SessionId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-public class Index {
-
-    private static boolean flag = false;
+public class MainController {
     @Autowired
     CreateWebdriver createWebdriver;
     @Autowired
@@ -61,7 +54,7 @@ public class Index {
         } catch (Exception e) {
             e.getMessage();
         }
-        return "index";
+        return "running";
     }
 
 //    @RequestMapping(value = "/getCapTypeImg",
@@ -84,18 +77,6 @@ public class Index {
 //        }
 //        return null;
 //    }
-    @RequestMapping(value = "/resetCapTypeImg",
-            method = RequestMethod.GET,
-            produces = MediaType.IMAGE_JPEG_VALUE)
-    public @ResponseBody
-    byte[] resetCapTypeImg() {
-        try {
-
-        } catch (Exception e) {
-            e.getMessage();
-        }
-        return null;
-    }
 
     @RequestMapping(value = "/startProxy", method = RequestMethod.GET)
     public @ResponseBody

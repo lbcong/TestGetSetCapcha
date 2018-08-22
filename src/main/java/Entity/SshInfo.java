@@ -17,7 +17,7 @@ public class SshInfo {
     private String user;
     private String pass;
     private String host;
-    private int port;
+    private String port;
     private boolean isUse;
 
     public boolean isIsUse() {
@@ -53,12 +53,14 @@ public class SshInfo {
         this.host = host;
     }
 
-    public int getPort() {
+    public String getPort() {
         return port;
     }
 
-    public void setPort(int port) {
+    public void setPort(String port) {
         this.port = port;
     }
+
+
 
 }

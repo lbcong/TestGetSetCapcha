@@ -7,6 +7,7 @@ package Service;
 
 import ConstantVariable.Constant;
 import Entity.ObjectJson;
+import Repository.MailOutLookRepository;
 import Utils.Chuyen_tu_Object_sang_byte_de_doc_hoac_ghi_file;
 import Utils.Utils;
 import java.io.BufferedOutputStream;
@@ -16,8 +17,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -26,6 +25,8 @@ import org.openqa.selenium.support.ui.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import restcontroller.TaskController;
+import Entity.MailOutLookEntity;
+import java.util.Date;
 
 @Service
 public class Codenvy {
@@ -44,21 +45,23 @@ public class Codenvy {
     CheckCapcha checkCapcha;
     @Autowired
     ProxyWithSSH proxyWithSSH;
+    @Autowired
+    MailOutLookRepository mailOutLookRepository;
     private List<String> listAccountCreated = new ArrayList<>();
     private int number_acc_must_create = 3;
     private int number_acc_created = 0;
     private int number_acc_fail = 0;
 
     public String Start(WebDriver webDriver) {
-        List<String> lists = null;
+        List<String> listsGithub = null;
         try {
-            lists = getTextFromGit.getStringFromGithubRaw("https://raw.githubusercontent.com/lbcong/SaveFileTemp/master/AccountSignUpOutLook.txt");
+            listsGithub = getTextFromGit.getStringFromGithubRaw("https://raw.githubusercontent.com/lbcong/SaveFileTemp/master/AccountSignUpOutLook.txt");
         } catch (IOException ex) {
             System.out.println("loi get acc from git:" + ex.getMessage());
         }
         boolean flag_wait = false;
         Random rd = new Random();
-        String str_username = lists.get(number_acc_created);
+        String str_username = "";
 //        String str_password = "Ahfweh123@#$";
         String str_password = "Zxcv123123";
         String str_LastName = "cailoadqng";
@@ -67,16 +70,18 @@ public class Codenvy {
         WebElement element = null;
         Select select = null;
         int counter = 0;
-        String text_capcha = null;
+        String button_after_subit = null;
+        String button_next = "";
+        MailOutLookEntity mailEntity = null;
         try {
             while (number_acc_created <= number_acc_must_create) {
-                str_username = lists.get(number_acc_created) + rd.nextInt(9999);
+                str_username = listsGithub.get(0) + rd.nextInt(9999);
                 insertInfoAccount(webDriver, str_username, str_password, str_LastName, str_FirstName);
-                String button_after_subit = ((RemoteWebElement) webDriver.findElement(By.xpath("//input[@id='iSignupAction']"))).getId();
-                String button_next = "";
+                button_after_subit = ((RemoteWebElement) webDriver.findElement(By.xpath("//input[@id='iSignupAction']"))).getId();
 
                 // ktra truong hop bi verifi truoc khi nhap capcha
                 counter = 0;
+                // dat thoi gian toi da 50s
                 while (counter < 100) {
                     Thread.sleep(500);
                     try {
@@ -98,7 +103,7 @@ public class Codenvy {
                             proxyWithSSH.changeIp();
                             continue;
                         } catch (Exception ex) {
-                            // dang load
+                            // dang load tiep tuc lap
                         }
                     }
                     counter++;
@@ -112,12 +117,11 @@ public class Codenvy {
                 }
                 flag_wait = false;
 
-                // tao img
+                // get string base64 tu img
                 String rs = dowloadService.dowloadImgTypeBase64(webDriver);
-
-                //check connect 
+//-------------------------------------------------------------------------------
                 checkConnect();
-                // gui base64 img qua cho service send bang method post va get ket qua
+                // gui string base64 img qua cho service send bang method post va nhan response dang object
                 Thread.sleep(3000);
                 ObjectJson responseObjectPost = sendRequest.sendPost(Constant.API_KEY, rs);
                 taskController.reportError("ket qua tra ve method post: " + responseObjectPost.getRequest());
@@ -143,11 +147,11 @@ public class Codenvy {
 
                 }
 
-                // doi 5-10sgui request de get text
+                // doi 5-10s gui request de get text
                 Thread.sleep(5000);
                 //check connect 
                 checkConnect();
-
+                // gui request len service de get text ket qua dang object
                 ObjectJson responseObjectGet = sendRequest.sendGet(Constant.API_KEY, responseObjectPost.getRequest());
                 taskController.reportError("ket qua tra ve method get: " + responseObjectGet.getRequest());
                 // kiem tra request ma no gui ve la gi so sanh voi cac ma~ loi neu gap loi thi` bat gui lai
@@ -174,17 +178,25 @@ public class Codenvy {
                         continue;
                 }
 
-                text_capcha = responseObjectGet.getRequest();
-
                 // get text va` kiem tra status cua json neu thanh cong thi input text vao capcha
-                status_capcha_result = checkCapcha.Check(webDriver, text_capcha);
+                status_capcha_result = checkCapcha.Check(webDriver, responseObjectGet.getRequest());
+//--------------------------------------------------------------------------------------------------
 
 //                 dung' + chua tao du so luong acc can thiet >> tao acc moi
                 if ((Constant.Sucess.equals(status_capcha_result)) && (number_acc_created < number_acc_must_create)) {
+                    // add account vao list muc dich sau nay ghi ra file txt
+                    // neu ko muon ghi file txt co the ko can lam cai nay
                     listAccountCreated.add(str_username);
-                    taskController.reportError("account duoc tao: " + str_username);
+                    mailEntity = new MailOutLookEntity();
+                    mailEntity.setCreated_at(new Date());
+                    mailEntity.setIdserver("1");
+                    mailEntity.setStatus("new");
+                    mailEntity.setName(str_username);
+                    mailEntity.setMain(true);
+                    // luu account vao databse
+                    mailOutLookRepository.save(mailEntity);
+                    taskController.reportError("account duoc tao thanh cong: " + str_username);
                     logout(webDriver);
-                    webDriver.manage().deleteAllCookies();
                     number_acc_created++;
                     while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
                         Thread.sleep(500);
@@ -194,6 +206,17 @@ public class Codenvy {
                 } else // dung' + da tao du so luong acc can thiet >> out
                 if ((Constant.Sucess.equals(status_capcha_result)) && (number_acc_created == number_acc_must_create)) {
                     listAccountCreated.add(str_username);
+                    mailEntity = new MailOutLookEntity();
+                    mailEntity.setCreated_at(new Date());
+                    mailEntity.setIdserver("1");
+                    mailEntity.setStatus("new");
+                    mailEntity.setName(str_username);
+                    mailEntity.setMain(true);
+                    mailOutLookRepository.save(mailEntity);
+                    taskController.reportError("account duoc tao thanh cong: " + str_username);
+                    taskController.reportError("da tao du so luong acc setup");
+                    logout(webDriver);
+                    number_acc_created++;
                     break;
                 } else // sai >> doi ip tao lai acc khac
                 if (Constant.Fail.equals(status_capcha_result)) {
@@ -206,7 +229,7 @@ public class Codenvy {
                 }
             }
 
-            // tam thoi se xuat ra file txt sau nay se day? len database
+            // xuat ra txt 1 ban? dua len database 1 ban
             File dir = new File("D:\\accountOutlook.txt");
             byte[] bytes = Chuyen_tu_Object_sang_byte_de_doc_hoac_ghi_file.ObjectToByte(listAccountCreated);
             BufferedOutputStream stream;
@@ -218,7 +241,7 @@ public class Codenvy {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            return "";
+            return "complete";
         } catch (Exception e) {
             System.out.println("exception:" + e.getMessage());
             webDriver.quit();
@@ -289,10 +312,6 @@ public class Codenvy {
         webDriver.findElement(By.xpath("//input[@id='iSignupAction']")).click();
     }
 
-    public List<String> getListAccountCreated() {
-        return listAccountCreated;
-    }
-
     public void logout(WebDriver webDriver) throws InterruptedException {
         checkConnect();
         webDriver.get("https://outlook.live.com/");
@@ -338,32 +357,33 @@ public class Codenvy {
             checkConnect();
         }
         flag_wait = false;
-
-        element = webDriver.findElement(By.xpath("//i[@data-icon-name='Lightbulb']"));
-        element.click();
-        while (!flag_wait) {
-            flag_wait = utils.waitForPresence(webDriver, 5000, "//div[contains(@class,'ms-Panel-navigation')]//button");
-            checkConnect();
-        }
-        flag_wait = false;
-        element = webDriver.findElement(By.xpath("//div[contains(@class,'ms-Panel-navigation')]//button"));
-        element.click();
-
         element = webDriver.findElement(By.xpath("//div[contains(@class,'ms-Persona ms-Persona--') and contains(@size,'11')]"));
         if (utils.isClickable(element, webDriver)) {
             // truong hop ko xuat hien modal
             element.click();
         }
 
-        element = webDriver.findElement(By.xpath("//div[contains(text(),'Đăng xuất')]"));
+        while (!flag_wait) {
 
+            flag_wait = utils.waitForPresence(webDriver, 5000, "//div[contains(text(),'Đăng xuất')]");
+        }
+        flag_wait = false;
+        element = webDriver.findElement(By.xpath("//div[contains(text(),'Đăng xuất')]/ancestor::div[2]"));
         while (utils.isClickable(element, webDriver)) {
             checkConnect();
             element.click();
         }
-
         webDriver.manage().deleteAllCookies();
 
+    }
+
+    public void checkConnect() throws InterruptedException {
+        while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
+            Thread.sleep(500);
+        }
+        if (!proxyWithSSH.checkSshlive()) {
+            proxyWithSSH.changeIp();
+        }
     }
 
     public int getNumber_acc_must_create() {
@@ -378,12 +398,8 @@ public class Codenvy {
         return number_acc_fail;
     }
 
-    public void checkConnect() throws InterruptedException {
-        while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
-            Thread.sleep(500);
-        }
-        if (!proxyWithSSH.checkSshlive()) {
-            proxyWithSSH.changeIp();
-        }
+    public List<String> getListAccountCreated() {
+        return listAccountCreated;
     }
+
 }

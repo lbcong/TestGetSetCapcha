@@ -29,12 +29,11 @@ public class PathDriver {
             String realpath = servletContext.getRealPath("");
             String[] temp;
             switch (SystemCofig.os) {
+                // chi dung cho cac host ta tu cau hinh , khong dung dc cho heroku
                 case "Linux":
                     temp = realpath.split("apache-tomcat-8.0.46", 2);
-
                     return temp[0];
-
-                case "Windows":
+                case "Windows": // dung cho may pc
                     temp = realpath.split("target", 2);
                     return temp[0];
             }
@@ -48,10 +47,10 @@ public class PathDriver {
         String realpath = getPath();
         webDriverGoogle = "webdriver.chrome.driver";
         switch (SystemCofig.os) {
-            case "Linux":
+            case "Linux": // duong dan den thu muc googledriver co dinh tren heroku
                 dirDriverGoogle = Constant.dirDriverGoogleHeroku;
                 break;
-            case "Windows":
+            case "Windows": // duong dan den thu muc googledriver tren pc
                 dirDriverGoogle = realpath +"chromedriver.exe";
                 break;
         }

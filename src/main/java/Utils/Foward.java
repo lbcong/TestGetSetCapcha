@@ -11,10 +11,6 @@ import com.jcraft.jsch.Session;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-/**
- *
- * @author Alex
- */
 public class Foward implements Runnable {
 
     OutputStream out;
@@ -34,6 +30,7 @@ public class Foward implements Runnable {
     @Override
     public void run() {
         try {
+            // tao chanel den remote host nhan va tra du lieu thong qua chanel nay
             session.openChannel("direct-tcpip");
             Channel channel = session.openChannel("direct-tcpip");
             if (channel instanceof ChannelDirectTCPIP) {
