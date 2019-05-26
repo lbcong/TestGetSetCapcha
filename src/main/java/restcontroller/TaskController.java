@@ -54,12 +54,12 @@ public class TaskController {
 
     @Scheduled(fixedRate = 3000)
     public void looperAuto() throws InterruptedException {
-        this.template.convertAndSend("/auto/greetings", "tong acc can tao: " + codenvy.getNumber_acc_must_create() + " tong acc da tao: " + codenvy.getNumber_acc_created() + " tong acc tao fail: " + codenvy.getNumber_acc_fail());
+//        this.template.convertAndSend("/auto/greetings", "tong acc can tao: " + codenvy.getNumber_acc_must_create() + " tong acc da tao: " + codenvy.getNumber_acc_created() + " tong acc tao fail: " + codenvy.getNumber_acc_fail());
+         this.template.convertAndSend("/auto/greetings", "img: " + codenvy.Img64base);
     }
     
-    @Scheduled(fixedRate = 3000)
     public void reportError(String str) throws InterruptedException {
-        this.template.convertAndSend("/error/greetings", "img: " + codenvy.Img64base);
+        this.template.convertAndSend("/error/greetings", str);
     }
 
     // lien tuc kiem tra se ket noi den ssh co con ket noi ko
