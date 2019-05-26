@@ -34,7 +34,7 @@ public class MainController {
     ProxyWithSSH proxyWithSSH;
     WebDriver webDriver = null;
 
-    @RequestMapping(value = "/startAuto", method = RequestMethod.GET)
+    @RequestMapping(value = "/startAuto", method = RequestMethod.GET,headers = "Connection!=Upgrade")
     public @ResponseBody
     String getCapTypeBase64() {
         try {
@@ -79,7 +79,7 @@ public class MainController {
 //        }
 //        return null;
 //    }
-    @RequestMapping(value = "/startProxy", method = RequestMethod.GET)
+    @RequestMapping(value = "/startProxy", method = RequestMethod.GET,headers = "Connection!=Upgrade")
     public @ResponseBody
     String startProxy() throws IOException {
         try {
@@ -123,7 +123,7 @@ public class MainController {
         return "stoped";
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(value = "/", method = RequestMethod.GET,headers = "Connection!=Upgrade")
     public String index() {
         return "index";
     }
