@@ -46,6 +46,10 @@
             <p id="status_auto"></p>
         </div>
         <div>
+            <p>img capcha</p>
+            <img id="img_capcha" alt="Red dot" />
+        </div> 
+        <div>
             <textarea style="height: 300px;width: 400px" id="error"></textarea>
         </div>
         <script type="text/javascript">
@@ -60,7 +64,7 @@
 
             function connect() {
                 var url = (window.location.protocol === "https:" ? "https:" : "http:") + "//" + window.location.host + window.location.pathname;
-                var socket = new SockJS(url+'/hello');
+                var socket = new SockJS(url + '/hello');
                 stompClient = Stomp.over(socket);
                 stompClient.connect({}, function (frame) {
                     setConnected(true);
@@ -138,6 +142,7 @@
             }
             $().ready(function () {
                 $('#status_proxy').css('display', 'none');
+                $('#img_capcha').css('display', 'none');
             });
             $().ready(function () {
                 $('#start_proxy').click(function () {
@@ -161,6 +166,10 @@
             function displayAutoStatus(data) {
                 $('#status_auto').text(data);
                 $('#status_auto').css('display', 'block');
+            }
+            function displayImg(data) {
+                $('#img_capcha').attr('src', data);
+                $('#img_capcha').css('display', 'block');
             }
             function displayError(data) {
                 var psconsole = $('#error');
