@@ -59,7 +59,8 @@
             }
 
             function connect() {
-                var socket = new SockJS('https://socketjav1.herokuapp.com/hello');
+                var url = (window.location.protocol === "https:" ? "https:" : "http:") + "//" + window.location.host + window.location.pathname;
+                var socket = new SockJS(url+'/hello');
                 stompClient = Stomp.over(socket);
                 stompClient.connect({}, function (frame) {
                     setConnected(true);
