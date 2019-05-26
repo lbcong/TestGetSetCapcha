@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>TestAutoGetCapcha</groupId>
-    <artifactId>TestAutoGetCapcha</artifactId>
+    <artifactId>TestAutoGetSetCapchaHeroku</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>TestAutoGetSetCapcha</name>
+    <name>TestAutoGetSetCapchaHeroku</name>
     <properties>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
