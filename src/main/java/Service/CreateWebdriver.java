@@ -49,8 +49,6 @@ public class CreateWebdriver {
 
     // neu file binary de o? thuc muc khac' khong phai /user/bin , vi du heroku
     public WebDriver getGoogle(String binaryGoogle) {
-        System.out.println(System.getProperty("java.version"));
-        System.out.println(System.getProperty("java.specification.version"));
         //
         setPathDriver.setPathGoogle();
         //

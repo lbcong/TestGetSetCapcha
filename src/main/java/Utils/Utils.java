@@ -5,6 +5,7 @@
  */
 package Utils;
 
+import Service.PathDriver;
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
 import java.util.Random;
@@ -13,6 +14,7 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.remote.UnreachableBrowserException;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -33,6 +35,21 @@ public class Utils {
             } catch (Exception e) {
                 break;
             }
+        }
+    }
+
+    public boolean waitForPresent(WebDriver driver, int timeLimitInSeconds, String targetXpath) throws InterruptedException {
+        if (isBrowserClosed(driver)) {
+            driver.quit();
+        }
+        try {
+            Thread.sleep(timeLimitInSeconds);
+            driver.findElement(By.xpath(targetXpath));
+            return true;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            Thread.sleep(500);
+            return false;
         }
     }
 
@@ -163,12 +180,22 @@ public class Utils {
             return false;
         }
     }
-    
-    public void clearCookie(WebDriver webDriver) throws InterruptedException{
-        if(webDriver instanceof ChromeDriver){
+
+    public void clearCookie(WebDriver webDriver) throws InterruptedException {
+        if (webDriver instanceof ChromeDriver) {
             clearCookieGoogle(webDriver);
-        }else if (webDriver instanceof FirefoxDriver){
+        } else if (webDriver instanceof FirefoxDriver) {
             clearCookieFirefox(webDriver);
+        }
+    }
+
+    public boolean isClickable(WebDriver driver, String targetXpath) {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, 2);
+            wait.until(ExpectedConditions.elementToBeClickable(driver.findElement(By.xpath(targetXpath))));
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 
@@ -181,7 +208,8 @@ public class Utils {
         }
         webDriver.findElement(By.cssSelector("* /deep/ #clearBrowsingDataConfirm")).click();
     }
-     public boolean isURLable(WebDriver driver, String url) {
+
+    public boolean isURLable(WebDriver driver, String url) {
         try {
             WebDriverWait wait = new WebDriverWait(driver, 3);
             wait.until(ExpectedConditions.urlContains(url));
@@ -199,5 +227,13 @@ public class Utils {
         } catch (Exception e) {
             return false;
         }
+    }
+    public WebDriver createNewWebdriver() {
+        System.setProperty(PathDriver.webDriverGoogle, PathDriver.dirDriverGoogle);
+        ChromeOptions optionswindow = new ChromeOptions();
+        String str_proxy_windows = "--proxy-server=socks4://127.0.0.1:" + 1080;
+        optionswindow.addArguments(str_proxy_windows);
+        optionswindow.addArguments("--headless");
+        return new ChromeDriver(optionswindow);
     }
 }

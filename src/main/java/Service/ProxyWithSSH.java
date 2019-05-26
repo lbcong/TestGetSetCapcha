@@ -12,43 +12,35 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 import Entity.SshInfo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import restcontroller.TaskController;
 import ConstantVariable.Constant;
 import com.jcraft.jsch.Session;
+import java.util.ArrayList;
 
-@Service
 public class ProxyWithSSH {
 
-    @Autowired
-    GetTextFromGit getTextFromGit;
-    @Autowired
-    SshInfo sshInfo;
-    @Autowired
-    TaskController taskController;
-    @Autowired
-    SSHService sSHService;
+    GetTextFromGit getTextFromGit = new GetTextFromGit();
+    SshInfo sshInfo = new SshInfo();
+    SSHService sSHService = new SSHService();
     private String bindAddress = "127.0.0.1";
     private int socksPort = 1080;
-    private String user = "";
-    private String host = "";
+    public static String user = "";
+    public static String host = "";
     private int sshPort = 22;
-    private String passwd = "";
-    private  Session session;
+    public static String passwd = "";
+    private Session session;
     public ServerSocket ss = null;
     public static boolean is_proxy_running = true;
-    public String status_proxy = "";
+    public static String status_proxy = "";
     private String keyOfProcessUsing = "";
-    public List<SshInfo> listInfo = null; // list ssh se duoc dung de fake ip
-    public int index_ssh = 0; // index cua ssh dang su dung 
+    public static List<SshInfo> listInfo = new ArrayList<>(); // list ssh se duoc dung de fake ip
+    public static int index_ssh = 0; // index cua ssh dang su dung 
 
     // cau hinh listen proxy
-    public void setting(String rawURL) {
+    public void setting(String url) {
         InetAddress baddress = null;
         try {
-//            listInfo = sSHService.getSSHs(rawURL);
-            listInfo = sSHService.getSSHs2(rawURL);
+            // get list proxy
+            listInfo = sSHService.getSSHs2(url);
             changeInfo();
             baddress = InetAddress.getByName(bindAddress);
             ss = new ServerSocket(socksPort, 0, baddress);
@@ -131,6 +123,12 @@ public class ProxyWithSSH {
         start();
     }
 
+    // thay doi ip cua ssh
+    synchronized public void disconnect() {
+        status_proxy = Constant.Creating;
+        session.disconnect();
+    }
+
     // thay doi thong tin cua ssh
     synchronized public void changeInfo() {
         try {
@@ -150,6 +148,15 @@ public class ProxyWithSSH {
             this.host = info.getHost();
         } catch (Exception ex) {
             System.out.println("loi changeip" + ex.getMessage());
+        }
+    }
+
+    public void checkConnect() throws InterruptedException {
+        while (session == null) {
+            Thread.sleep(500);
+        }
+        if (!checkSshlive()) {
+            changeIp();
         }
     }
 
@@ -176,6 +183,5 @@ public class ProxyWithSSH {
     public Session getSession() {
         return session;
     }
-    
 
 }

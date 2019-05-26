@@ -7,6 +7,8 @@ package Service;
 
 import ConstantVariable.Constant;
 import Entity.ObjectJson;
+import Exception.CantGetMainPageException;
+import Exception.DisconnectException;
 import Exception.PageLoadTooLongException;
 import Exception.VerifiMobileException;
 import Utils.Chuyen_tu_Object_sang_byte_de_doc_hoac_ghi_file;
@@ -18,6 +20,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -44,12 +48,15 @@ public class Codenvy {
     CheckCapcha checkCapcha;
     @Autowired
     ProxyWithSSH proxyWithSSH;
+    public WebDriver webDrivers;
     private List<String> listAccountCreated = new ArrayList<>();
     private int number_acc_must_create = 30;
     private int number_acc_created = 0;
     private int number_acc_fail = 0;
+    public String Img64base = "";
 
     public String Start(WebDriver webDriver) throws InterruptedException {
+        this.webDrivers = webDriver;
         List<String> listsGithub = null;
         try {
             listsGithub = getTextFromGit.getStringFromGithubRaw("https://raw.githubusercontent.com/lbcong/SaveFileTemp/master/AccountSignUpOutLook.txt");
@@ -69,7 +76,8 @@ public class Codenvy {
         int counter = 0;
         String button_after_subit = null;
         String button_next = "";
-        while (number_acc_created <= number_acc_must_create) {
+        boolean isGetImg = false;
+        while (!isGetImg) {
             try {
                 str_username = utils.createEmailRandom() + listsGithub.get(0) + utils.generateRandomString(rd.nextInt(20));
                 insertInfoAccount(webDriver, str_username, str_password, str_LastName, str_FirstName);
@@ -106,129 +114,126 @@ public class Codenvy {
                     }
                     counter++;
                 }
-
                 // wait
                 counter = 0;
-                while (counter < 25) {
-                    Thread.sleep(300);
-                    if (utils.waitForPresence(webDriver, 5000, "//img[@aria-label='Visual Challenge']")) {
+                Thread task = new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            utils.waitForPresence(webDrivers, 5000, "//img[@aria-label='Visual Challenge']");
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Codenvy.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                };
+                task.start();
+                for (int i = 0; i <= 10; i++) {
+                    if (!task.isAlive()) {
                         break;
                     }
-                    //check connect 
-                    checkConnect();
-                    if (counter == 24) {
-                        throw new PageLoadTooLongException();
+                    Thread.sleep(1000);
+                    if (i == 10) {
+                        task.stop();
+                        while (counter < 25) {
+                            Thread.sleep(300);
+                            if (utils.waitForPresent(webDriver, 2000, "//a[@class='btn btn-block captchaHIPLinks']")) {
+                                if (utils.isClickable(webDriver, "//a[@class='btn btn-block captchaHIPLinks']")) {
+                                    break;
+                                }
+                            }
+
+                            //check connect 
+                            proxyWithSSH.checkConnect();
+                            if (counter == 24) {
+                                task.stop();
+                                throw new PageLoadTooLongException();
+                            }
+                            counter++;
+                        }
+
+                        webDriver.findElement(By.xpath("//a[@class='btn btn-block captchaHIPLinks']")).click();
+                        Thread task1 = new Thread() {
+                            @Override
+                            public void run() {
+                                try {
+                                    utils.waitForPresence(webDrivers, 5000, "//img[@aria-label='Visual Challenge']");
+                                } catch (InterruptedException ex) {
+                                    Logger.getLogger(Codenvy.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }
+                        };
+                        task1.start();
+                        for (int j = 0; j <= 16; j++) {
+                            if (!task1.isAlive()) {
+                                break;
+                            }
+                            proxyWithSSH.checkConnect();
+                            Thread.sleep(1000);
+                            if (j == 10) {
+                                throw new PageLoadTooLongException();
+                            }
+                        }
+
                     }
-                    counter++;
                 }
-                flag_wait = false;
 
                 // get string base64 tu img
-                String rs = dowloadService.dowloadImgTypeBase64(webDriver);
-//-------------------------------------------------------------------------------
-//                checkConnect();
-//                // gui string base64 img qua cho service send bang method post va nhan response dang object
-//                Thread.sleep(3000);
-//                ObjectJson responseObjectPost = sendRequest.sendPost(Constant.API_KEY, rs);
-//                taskController.reportError("ket qua tra ve method post: " + responseObjectPost.getRequest());
-//                switch (responseObjectPost.getRequest()) {
-//                    case "ERROR_NO_SLOT_AVAILABLE":
-//                        System.out.println("Service.Codenvy.Start()");
-//                        break;
-//                    case "ERROR_UPLOAD":
-//                        System.out.println("Service.Codenvy.Start()");
-//                        break;
-//                    case "ERROR_IP_NOT_ALLOWED":
-//                        System.exit(0);
-//                        break;
-//                    case "IP_BANNED":
-//                        System.exit(0);
-//                        break;
-//                    case "MAX_USER_TURN":
-//                        webDriver.manage().deleteAllCookies();
-//                        continue;
-//                    case "NNNN":
-//                        webDriver.manage().deleteAllCookies();
-//                        continue;
-//
-//                }
-//
-//                // doi 5-10s gui request de get text
-//                Thread.sleep(5000);
-//                //check connect 
-//                checkConnect();
-//                // gui request len service de get text ket qua dang object
-//                ObjectJson responseObjectGet = sendRequest.sendGet(Constant.API_KEY, responseObjectPost.getRequest());
-//                taskController.reportError("ket qua tra ve method get: " + responseObjectGet.getRequest());
-//                // kiem tra request ma no gui ve la gi so sanh voi cac ma~ loi neu gap loi thi` bat gui lai
-//                switch (responseObjectGet.getRequest()) {
-//                    case "CAPCHA_NOT_READY":
-//                        Thread.sleep(7000);
-//                        responseObjectGet = sendRequest.sendGet(Constant.API_KEY, responseObjectPost.getRequest());
-//                        taskController.reportError("ket qua tra ve method get: " + responseObjectGet.getRequest());
-//                        break;
-//                    case "ERROR_CAPTCHA_UNSOLVABLE":
-//                        webDriver.manage().deleteAllCookies();
-//                        continue;
-//                    case "ERROR_KEY_DOES_NOT_EXIST":
-//                        webDriver.manage().deleteAllCookies();
-//                        continue;
-//                    case "ERROR_WRONG_CAPTCHA_ID":
-//                        webDriver.manage().deleteAllCookies();
-//                        continue;
-//                    case "ERROR_BAD_DUPLICATES":
-//                        webDriver.manage().deleteAllCookies();
-//                        continue;
-//                    case "NNNN	":
-//                        webDriver.manage().deleteAllCookies();
-//                        continue;
-//                }
-//
-//                // get text va` kiem tra status cua json neu thanh cong thi input text vao capcha
-//                status_capcha_result = checkCapcha.Check(webDriver, responseObjectGet.getRequest());
-//--------------------------------------------------------------------------------------------------
-                status_capcha_result = checkCapcha.Check(webDriver, "");
-//                 dung' + chua tao du so luong acc can thiet >> tao acc moi
-                if ((Constant.Sucess.equals(status_capcha_result)) && (number_acc_created < number_acc_must_create)) {
-                    // add account vao list muc dich sau nay ghi ra file txt
-                    // neu ko muon ghi file txt co the ko can lam cai nay
-                    listAccountCreated.add(str_username);
-                    taskController.reportError("account duoc tao thanh cong: " + str_username);
-                    utils.clearCookie(webDriver);
-                    number_acc_created++;
-                    while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
-                        Thread.sleep(500);
-                    }
-                    proxyWithSSH.changeIp();
-                } else // dung' + da tao du so luong acc can thiet >> out
-                if ((Constant.Sucess.equals(status_capcha_result)) && (number_acc_created == number_acc_must_create)) {
-                    listAccountCreated.add(str_username);
-                    taskController.reportError("account duoc tao thanh cong: " + str_username);
-                    taskController.reportError("da tao du so luong acc setup");
-                    utils.clearCookie(webDriver);
-                    number_acc_created++;
-                    break;
-                } else // sai >> doi ip tao lai acc khac
-                if (Constant.Fail.equals(status_capcha_result)) {
-                    while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
-                        Thread.sleep(500);
-                    }
-                    proxyWithSSH.changeIp();
-                    utils.clearCookie(webDriver);
-                    number_acc_fail++;
-                }
+                Img64base = dowloadService.dowloadImgTypeBase64(webDriver);
+                isGetImg = true;
 
             } catch (Exception e) {
                 if (e instanceof VerifiMobileException) {
-                    utils.clearCookie(webDriver);
+                    while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Codenvy.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
                     while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
                         Thread.sleep(500);
                     }
                     proxyWithSSH.changeIp();
+                    webDriver.quit();
+                    webDriver = utils.createNewWebdriver();
+
+                    continue;
+
+                } else if (e instanceof DisconnectException) {
+
+                    while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Codenvy.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
+                        Thread.sleep(500);
+                    }
+                    proxyWithSSH.changeIp();
+                    webDriver.quit();
+                    webDriver = utils.createNewWebdriver();
+                    continue;
+
+                } else if (e instanceof PageLoadTooLongException) {
+                    proxyWithSSH.changeIp();
+                    while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
+                        Thread.sleep(500);
+                    }
+                    webDriver.quit();
+                    webDriver = utils.createNewWebdriver();
+                    continue;
+                } else if (e instanceof CantGetMainPageException) {
+                    webDriver.quit();
+                    webDriver = utils.createNewWebdriver();
+                    proxyWithSSH.changeIp();
+                    while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
+                        Thread.sleep(500);
+                    }
                     continue;
                 } else {
-                    System.out.println("exception:" + e.getMessage());
-                    utils.clearCookie(webDriver);
+
                     while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
                         Thread.sleep(500);
                     }

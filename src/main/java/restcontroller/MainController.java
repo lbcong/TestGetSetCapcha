@@ -34,14 +34,9 @@ public class MainController {
     ProxyWithSSH proxyWithSSH;
     WebDriver webDriver = null;
     
-    @RequestMapping(value = "/index1", method = RequestMethod.GET,headers = "Connection!=Upgrade")
-    public String test(){
-        return "index1";
-    }
-    
     @RequestMapping(value = "/startAuto", method = RequestMethod.GET,headers = "Connection!=Upgrade")
     public @ResponseBody
-    String getCapTypeBase64() {
+    String startAuto() {
         try {
             if (VariableSession.flag_status_is_first_run_app) {
                 webDriver = createWebdriver.getGoogle(Constant.binaryGoogleWindows);
