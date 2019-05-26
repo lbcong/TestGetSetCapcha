@@ -171,7 +171,7 @@
                 $('#status_auto').css('display', 'block');
             }
             function displayImg(data) {
-                $('#img_capcha').attr('src', data);
+                $('#img_capcha').attr('src',"data:image/png;base64, "+data);
                 $('#img_capcha').css('display', 'block');
             }
             function displayError(data) {
