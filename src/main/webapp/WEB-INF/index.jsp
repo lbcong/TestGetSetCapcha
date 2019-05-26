@@ -78,6 +78,9 @@
                     stompClient.subscribe('/error/greetings', function (greeting) {
                         displayError(greeting.body);
                     });
+                    stompClient.subscribe('/auto/getImg', function (greeting) {
+                        displayImg(greeting.body);
+                    });
                 });
             }
 

@@ -54,8 +54,12 @@ public class TaskController {
 
     @Scheduled(fixedRate = 3000)
     public void looperAuto() throws InterruptedException {
-//        this.template.convertAndSend("/auto/greetings", "tong acc can tao: " + codenvy.getNumber_acc_must_create() + " tong acc da tao: " + codenvy.getNumber_acc_created() + " tong acc tao fail: " + codenvy.getNumber_acc_fail());
-         this.template.convertAndSend("/auto/greetings", "img: " + codenvy.Img64base);
+        this.template.convertAndSend("/auto/greetings", "tong acc can tao: " + codenvy.getNumber_acc_must_create() + " tong acc da tao: " + codenvy.getNumber_acc_created() + " tong acc tao fail: " + codenvy.getNumber_acc_fail());
+    }
+    
+    @Scheduled(fixedRate = 3000)
+    public void looperAutoImg() throws InterruptedException {
+         this.template.convertAndSend("/auto/getImg",codenvy.Img64base);
     }
     
     public void reportError(String str) throws InterruptedException {
