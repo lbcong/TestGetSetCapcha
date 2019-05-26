@@ -45,4 +45,30 @@ public class SSHService {
         }
         return null;
     }
+    
+    public List<SshInfo> getSSHs2(String path) {
+        List<SshInfo> listInfo = new ArrayList<>();
+        List<String> lists = null;
+        try {
+            lists = Doc_file_kieu_txt.readFile(path);
+            if (lists != null) {
+                for (int i = 0; i < lists.size(); i++) {
+                    if (!lists.get(i).equals("") && !lists.get(i).equals(" ")) {
+                        SshInfo info = new SshInfo();
+                        String[] chuoi_tach = lists.get(i).split("\\|");
+                        if (chuoi_tach.length >= 3) {
+                            info.setUser(chuoi_tach[1]);
+                            info.setPass(chuoi_tach[2]);
+                            info.setHost(chuoi_tach[0]);
+                            listInfo.add(info);
+                        }
+                    }
+                }
+            }
+            return listInfo;
+        } catch (Exception e) {
+            System.out.println("loi doc file");
+        }
+        return null;
+    }
 }

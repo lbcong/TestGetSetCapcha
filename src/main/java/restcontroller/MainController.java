@@ -12,6 +12,7 @@ import Service.Codenvy;
 import Service.CreateWebdriver;
 import Service.ProxyWithSSH;
 import java.io.IOException;
+import java.net.URL;
 import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class MainController {
+
     @Autowired
     CreateWebdriver createWebdriver;
     @Autowired
@@ -77,7 +79,6 @@ public class MainController {
 //        }
 //        return null;
 //    }
-
     @RequestMapping(value = "/startProxy", method = RequestMethod.GET)
     public @ResponseBody
     String startProxy() throws IOException {
@@ -88,7 +89,9 @@ public class MainController {
                     public void run() {
                         try {
                             VariableSession.flag_status_is_first_run_proxy = false;
-                            proxyWithSSH.setting("https://raw.githubusercontent.com/lbcong/SaveFileTemp/master/ConfigFileConnect");
+                            URL Urlssh = MainController.class
+                                    .getClassLoader().getResource("ssh.txt");
+                            proxyWithSSH.setting(Urlssh.getPath());
                             proxyWithSSH.start();
                         } catch (Exception e) {
                             e.getMessage();

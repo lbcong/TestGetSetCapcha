@@ -7,7 +7,8 @@ package Service;
 
 import ConstantVariable.Constant;
 import Entity.ObjectJson;
-import Repository.MailOutLookRepository;
+import Exception.PageLoadTooLongException;
+import Exception.VerifiMobileException;
 import Utils.Chuyen_tu_Object_sang_byte_de_doc_hoac_ghi_file;
 import Utils.Utils;
 import java.io.BufferedOutputStream;
@@ -25,8 +26,6 @@ import org.openqa.selenium.support.ui.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import restcontroller.TaskController;
-import Entity.MailOutLookEntity;
-import java.util.Date;
 
 @Service
 public class Codenvy {
@@ -45,14 +44,12 @@ public class Codenvy {
     CheckCapcha checkCapcha;
     @Autowired
     ProxyWithSSH proxyWithSSH;
-    @Autowired
-    MailOutLookRepository mailOutLookRepository;
     private List<String> listAccountCreated = new ArrayList<>();
-    private int number_acc_must_create = 3;
+    private int number_acc_must_create = 30;
     private int number_acc_created = 0;
     private int number_acc_fail = 0;
 
-    public String Start(WebDriver webDriver) {
+    public String Start(WebDriver webDriver) throws InterruptedException {
         List<String> listsGithub = null;
         try {
             listsGithub = getTextFromGit.getStringFromGithubRaw("https://raw.githubusercontent.com/lbcong/SaveFileTemp/master/AccountSignUpOutLook.txt");
@@ -72,10 +69,9 @@ public class Codenvy {
         int counter = 0;
         String button_after_subit = null;
         String button_next = "";
-        MailOutLookEntity mailEntity = null;
-        try {
-            while (number_acc_created <= number_acc_must_create) {
-                str_username = listsGithub.get(0) + rd.nextInt(9999);
+        while (number_acc_created <= number_acc_must_create) {
+            try {
+                str_username = utils.createEmailRandom() + listsGithub.get(0) + utils.generateRandomString(rd.nextInt(20));
                 insertInfoAccount(webDriver, str_username, str_password, str_LastName, str_FirstName);
                 button_after_subit = ((RemoteWebElement) webDriver.findElement(By.xpath("//input[@id='iSignupAction']"))).getId();
 
@@ -96,126 +92,120 @@ public class Codenvy {
                     } catch (Exception e) {
                         // dang load hoac verifi
                         try {
-                            webDriver.findElement(By.xpath("//input[@id='iSignupAction']"));
-                            while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
-                                Thread.sleep(500);
-                            }
-                            proxyWithSSH.changeIp();
-                            continue;
+                            webDriver.findElement(By.xpath("//input[contains(@id,'PhoneInput')]"));
+                            throw new VerifiMobileException();
                         } catch (Exception ex) {
+                            if (ex instanceof VerifiMobileException) {
+                                throw ex;
+                            }
                             // dang load tiep tuc lap
                         }
+                    }
+                    if (counter == 99) {
+                        throw new PageLoadTooLongException();
                     }
                     counter++;
                 }
 
                 // wait
-                while (!flag_wait) {
-                    flag_wait = utils.waitForPresence(webDriver, 5000, "//img[@aria-label='Visual Challenge']");
+                counter = 0;
+                while (counter < 25) {
+                    Thread.sleep(300);
+                    if (utils.waitForPresence(webDriver, 5000, "//img[@aria-label='Visual Challenge']")) {
+                        break;
+                    }
                     //check connect 
                     checkConnect();
+                    if (counter == 24) {
+                        throw new PageLoadTooLongException();
+                    }
+                    counter++;
                 }
                 flag_wait = false;
 
                 // get string base64 tu img
                 String rs = dowloadService.dowloadImgTypeBase64(webDriver);
 //-------------------------------------------------------------------------------
-                checkConnect();
-                // gui string base64 img qua cho service send bang method post va nhan response dang object
-                Thread.sleep(3000);
-                ObjectJson responseObjectPost = sendRequest.sendPost(Constant.API_KEY, rs);
-                taskController.reportError("ket qua tra ve method post: " + responseObjectPost.getRequest());
-                switch (responseObjectPost.getRequest()) {
-                    case "ERROR_NO_SLOT_AVAILABLE":
-                        System.out.println("Service.Codenvy.Start()");
-                        break;
-                    case "ERROR_UPLOAD":
-                        System.out.println("Service.Codenvy.Start()");
-                        break;
-                    case "ERROR_IP_NOT_ALLOWED":
-                        System.exit(0);
-                        break;
-                    case "IP_BANNED":
-                        System.exit(0);
-                        break;
-                    case "MAX_USER_TURN":
-                        webDriver.manage().deleteAllCookies();
-                        continue;
-                    case "NNNN":
-                        webDriver.manage().deleteAllCookies();
-                        continue;
-
-                }
-
-                // doi 5-10s gui request de get text
-                Thread.sleep(5000);
-                //check connect 
-                checkConnect();
-                // gui request len service de get text ket qua dang object
-                ObjectJson responseObjectGet = sendRequest.sendGet(Constant.API_KEY, responseObjectPost.getRequest());
-                taskController.reportError("ket qua tra ve method get: " + responseObjectGet.getRequest());
-                // kiem tra request ma no gui ve la gi so sanh voi cac ma~ loi neu gap loi thi` bat gui lai
-                switch (responseObjectGet.getRequest()) {
-                    case "CAPCHA_NOT_READY":
-                        Thread.sleep(7000);
-                        responseObjectGet = sendRequest.sendGet(Constant.API_KEY, responseObjectPost.getRequest());
-                        taskController.reportError("ket qua tra ve method get: " + responseObjectGet.getRequest());
-                        break;
-                    case "ERROR_CAPTCHA_UNSOLVABLE":
-                        webDriver.manage().deleteAllCookies();
-                        continue;
-                    case "ERROR_KEY_DOES_NOT_EXIST":
-                        webDriver.manage().deleteAllCookies();
-                        continue;
-                    case "ERROR_WRONG_CAPTCHA_ID":
-                        webDriver.manage().deleteAllCookies();
-                        continue;
-                    case "ERROR_BAD_DUPLICATES":
-                        webDriver.manage().deleteAllCookies();
-                        continue;
-                    case "NNNN	":
-                        webDriver.manage().deleteAllCookies();
-                        continue;
-                }
-
-                // get text va` kiem tra status cua json neu thanh cong thi input text vao capcha
-                status_capcha_result = checkCapcha.Check(webDriver, responseObjectGet.getRequest());
+//                checkConnect();
+//                // gui string base64 img qua cho service send bang method post va nhan response dang object
+//                Thread.sleep(3000);
+//                ObjectJson responseObjectPost = sendRequest.sendPost(Constant.API_KEY, rs);
+//                taskController.reportError("ket qua tra ve method post: " + responseObjectPost.getRequest());
+//                switch (responseObjectPost.getRequest()) {
+//                    case "ERROR_NO_SLOT_AVAILABLE":
+//                        System.out.println("Service.Codenvy.Start()");
+//                        break;
+//                    case "ERROR_UPLOAD":
+//                        System.out.println("Service.Codenvy.Start()");
+//                        break;
+//                    case "ERROR_IP_NOT_ALLOWED":
+//                        System.exit(0);
+//                        break;
+//                    case "IP_BANNED":
+//                        System.exit(0);
+//                        break;
+//                    case "MAX_USER_TURN":
+//                        webDriver.manage().deleteAllCookies();
+//                        continue;
+//                    case "NNNN":
+//                        webDriver.manage().deleteAllCookies();
+//                        continue;
+//
+//                }
+//
+//                // doi 5-10s gui request de get text
+//                Thread.sleep(5000);
+//                //check connect 
+//                checkConnect();
+//                // gui request len service de get text ket qua dang object
+//                ObjectJson responseObjectGet = sendRequest.sendGet(Constant.API_KEY, responseObjectPost.getRequest());
+//                taskController.reportError("ket qua tra ve method get: " + responseObjectGet.getRequest());
+//                // kiem tra request ma no gui ve la gi so sanh voi cac ma~ loi neu gap loi thi` bat gui lai
+//                switch (responseObjectGet.getRequest()) {
+//                    case "CAPCHA_NOT_READY":
+//                        Thread.sleep(7000);
+//                        responseObjectGet = sendRequest.sendGet(Constant.API_KEY, responseObjectPost.getRequest());
+//                        taskController.reportError("ket qua tra ve method get: " + responseObjectGet.getRequest());
+//                        break;
+//                    case "ERROR_CAPTCHA_UNSOLVABLE":
+//                        webDriver.manage().deleteAllCookies();
+//                        continue;
+//                    case "ERROR_KEY_DOES_NOT_EXIST":
+//                        webDriver.manage().deleteAllCookies();
+//                        continue;
+//                    case "ERROR_WRONG_CAPTCHA_ID":
+//                        webDriver.manage().deleteAllCookies();
+//                        continue;
+//                    case "ERROR_BAD_DUPLICATES":
+//                        webDriver.manage().deleteAllCookies();
+//                        continue;
+//                    case "NNNN	":
+//                        webDriver.manage().deleteAllCookies();
+//                        continue;
+//                }
+//
+//                // get text va` kiem tra status cua json neu thanh cong thi input text vao capcha
+//                status_capcha_result = checkCapcha.Check(webDriver, responseObjectGet.getRequest());
 //--------------------------------------------------------------------------------------------------
-
+                status_capcha_result = checkCapcha.Check(webDriver, "");
 //                 dung' + chua tao du so luong acc can thiet >> tao acc moi
                 if ((Constant.Sucess.equals(status_capcha_result)) && (number_acc_created < number_acc_must_create)) {
                     // add account vao list muc dich sau nay ghi ra file txt
                     // neu ko muon ghi file txt co the ko can lam cai nay
                     listAccountCreated.add(str_username);
-                    mailEntity = new MailOutLookEntity();
-                    mailEntity.setCreated_at(new Date());
-                    mailEntity.setIdserver("1");
-                    mailEntity.setStatus("new");
-                    mailEntity.setName(str_username);
-                    mailEntity.setMain(true);
-                    // luu account vao databse
-                    mailOutLookRepository.save(mailEntity);
                     taskController.reportError("account duoc tao thanh cong: " + str_username);
-                    logout(webDriver);
+                    utils.clearCookie(webDriver);
                     number_acc_created++;
                     while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
                         Thread.sleep(500);
                     }
                     proxyWithSSH.changeIp();
-                    webDriver.manage().deleteAllCookies();
                 } else // dung' + da tao du so luong acc can thiet >> out
                 if ((Constant.Sucess.equals(status_capcha_result)) && (number_acc_created == number_acc_must_create)) {
                     listAccountCreated.add(str_username);
-                    mailEntity = new MailOutLookEntity();
-                    mailEntity.setCreated_at(new Date());
-                    mailEntity.setIdserver("1");
-                    mailEntity.setStatus("new");
-                    mailEntity.setName(str_username);
-                    mailEntity.setMain(true);
-                    mailOutLookRepository.save(mailEntity);
                     taskController.reportError("account duoc tao thanh cong: " + str_username);
                     taskController.reportError("da tao du so luong acc setup");
-                    logout(webDriver);
+                    utils.clearCookie(webDriver);
                     number_acc_created++;
                     break;
                 } else // sai >> doi ip tao lai acc khac
@@ -224,64 +214,104 @@ public class Codenvy {
                         Thread.sleep(500);
                     }
                     proxyWithSSH.changeIp();
-                    webDriver.manage().deleteAllCookies();
+                    utils.clearCookie(webDriver);
                     number_acc_fail++;
                 }
-            }
 
-            // xuat ra txt 1 ban? dua len database 1 ban
-            File dir = new File("D:\\accountOutlook.txt");
-            byte[] bytes = Chuyen_tu_Object_sang_byte_de_doc_hoac_ghi_file.ObjectToByte(listAccountCreated);
-            BufferedOutputStream stream;
-            try {
-                stream = new BufferedOutputStream(
-                        new FileOutputStream(dir));
-                stream.write(bytes);
-                stream.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } catch (Exception e) {
+                if (e instanceof VerifiMobileException) {
+                    utils.clearCookie(webDriver);
+                    while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
+                        Thread.sleep(500);
+                    }
+                    proxyWithSSH.changeIp();
+                    continue;
+                } else {
+                    System.out.println("exception:" + e.getMessage());
+                    utils.clearCookie(webDriver);
+                    while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
+                        Thread.sleep(500);
+                    }
+                    proxyWithSSH.changeIp();
+                    continue;
+                }
+
             }
-            return "complete";
-        } catch (Exception e) {
-            System.out.println("exception:" + e.getMessage());
-            webDriver.quit();
-            return null;
         }
+
+        // xuat ra txt 1 ban? dua len database 1 ban
+        File dir = new File("D:\\accountOutlook.txt");
+        byte[] bytes = Chuyen_tu_Object_sang_byte_de_doc_hoac_ghi_file.ObjectToByte(listAccountCreated);
+        BufferedOutputStream stream;
+        try {
+            stream = new BufferedOutputStream(
+                    new FileOutputStream(dir));
+            stream.write(bytes);
+            stream.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return "complete";
     }
 
-    public void insertInfoAccount(WebDriver webDriver, String str_username, String str_password, String str_LastName, String str_FirstName) throws InterruptedException {
+    public void insertInfoAccount(WebDriver webDriver, String str_username, String str_password, String str_LastName, String str_FirstName) throws InterruptedException, PageLoadTooLongException {
 
         boolean flag_wait = false;
+        int counter = 0;
 //check connect
         checkConnect();
         webDriver.get("https://outlook.live.com/owa/?nlp=1&signup=1");
 // wait
-        while (!flag_wait) {
-            flag_wait = utils.waitForPresence(webDriver, 5000, "//input[@id='MemberName']");
+        while (counter < 25) {
+            Thread.sleep(400);
+            if (utils.waitForPresence(webDriver, 5000, "//input[@id='MemberName']")) {
+                break;
+            }
             //check connect
             checkConnect();
+            if (counter == 24) {
+                throw new PageLoadTooLongException();
+            }
+            counter++;
         }
         flag_wait = false;
         WebElement input_signin = webDriver.findElement(By.xpath("//input[@id='MemberName']"));
+        Thread.sleep(100);
         input_signin.sendKeys(str_username);
+        Thread.sleep(100);
         webDriver.findElement(By.xpath("//input[@id='iSignupAction']")).click();
 // wait
-        while (!flag_wait) {
-            flag_wait = utils.waitForPresence(webDriver, 5000, "//input[@id='PasswordInput']");
+        counter = 0;
+        while (counter < 25) {
+            Thread.sleep(400);
+            if (utils.waitForPresence(webDriver, 5000, "//input[@id='PasswordInput']")) {
+                break;
+            }
             //check connect
             checkConnect();
+            if (counter == 24) {
+                throw new PageLoadTooLongException();
+            }
+            counter++;
         }
-        flag_wait = false;
         WebElement PasswordInput = webDriver.findElement(By.xpath("//input[@id='PasswordInput']"));
         PasswordInput.sendKeys(str_password);
         webDriver.findElement(By.xpath("//input[@id='iSignupAction']")).click();
 // wait
-        while (!flag_wait) {
-            flag_wait = utils.waitForPresence(webDriver, 5000, "//input[@id='LastName']");
+        counter = 0;
+        while (counter < 25) {
+            Thread.sleep(400);
+            if (utils.waitForPresence(webDriver, 5000, "//input[@id='LastName']")) {
+                break;
+            }
             //check connect
             checkConnect();
+            if (counter == 24) {
+                throw new PageLoadTooLongException();
+            }
+            counter++;
         }
-        flag_wait = false;
+
         WebElement LastName = webDriver.findElement(By.xpath("//input[@id='LastName']"));
         LastName.sendKeys(str_LastName);
         WebElement FirstName = webDriver.findElement(By.xpath("//input[@id='FirstName']"));
@@ -289,12 +319,20 @@ public class Codenvy {
         webDriver.findElement(By.xpath("//input[@id='iSignupAction']")).click();
 
 // wait
-        while (!flag_wait) {
-            flag_wait = utils.waitForPresence(webDriver, 5000, "//select[@id='BirthDay']");
+        counter = 0;
+        while (counter < 25) {
+            Thread.sleep(400);
+            if (utils.waitForPresence(webDriver, 5000, "//select[@id='BirthDay']")) {
+                break;
+            }
             //check connect
             checkConnect();
+            if (counter == 24) {
+                throw new PageLoadTooLongException();
+            }
+            counter++;
         }
-        flag_wait = false;
+
         WebElement Body = webDriver.findElement(By.tagName("body"));
         String languae = Body.getAttribute("lang");
         Select BirthDay = new Select(webDriver.findElement(By.xpath("//select[@id='BirthDay']")));
@@ -312,71 +350,70 @@ public class Codenvy {
         webDriver.findElement(By.xpath("//input[@id='iSignupAction']")).click();
     }
 
-    public void logout(WebDriver webDriver) throws InterruptedException {
-        checkConnect();
-        webDriver.get("https://outlook.live.com/");
-        WebElement element = null;
-        Select select = null;
-        boolean status = false;
-        boolean flag_wait = false;
-        List<WebElement> listElement = null;
-        try {
-            element = webDriver.findElement(By.xpath("//span[@class='signinTxt']"));
-            status = true;
-        } catch (Exception e) {
-            status = false;
-        }
-        // neu tao account lan dau phai cau hinh` language
-        if (status) {
-            while (!flag_wait) {
-                flag_wait = utils.waitForPresence(webDriver, 5000, "//span[@class='signinTxt']");
-
-            }
-            flag_wait = false;
-            select = new Select(webDriver.findElement(By.xpath("//select[@id='selTz']")));
-            select.selectByIndex(3);
-
-            select = new Select(webDriver.findElement(By.xpath("//select[@name='lcid' and @class='languageInputText']")));
-            listElement = select.getOptions();
-
-            int index = 0;
-            for (int i = 0; i < listElement.size(); i++) {
-                if ("1066".equals(listElement.get(i).getAttribute("value"))) {
-                    index = i;
-                    break;
-                }
-            }
-            select.selectByIndex(index);
-            WebElement signinTxt = webDriver.findElement(By.xpath("//span[@class='signinTxt']"));
-            signinTxt.click();
-        }
-
-        // wait doi xuat hien page mail box
-        while (!flag_wait) {
-            flag_wait = utils.waitForPresence(webDriver, 5000, "//div[contains(@class,'ms-Persona ms-Persona--') and contains(@size,'11')]");
-            checkConnect();
-        }
-        flag_wait = false;
-        element = webDriver.findElement(By.xpath("//div[contains(@class,'ms-Persona ms-Persona--') and contains(@size,'11')]"));
-        if (utils.isClickable(element, webDriver)) {
-            // truong hop ko xuat hien modal
-            element.click();
-        }
-
-        while (!flag_wait) {
-
-            flag_wait = utils.waitForPresence(webDriver, 5000, "//div[contains(text(),'Đăng xuất')]");
-        }
-        flag_wait = false;
-        element = webDriver.findElement(By.xpath("//div[contains(text(),'Đăng xuất')]/ancestor::div[2]"));
-        while (utils.isClickable(element, webDriver)) {
-            checkConnect();
-            element.click();
-        }
-        webDriver.manage().deleteAllCookies();
-
-    }
-
+//    public void logout(WebDriver webDriver) throws InterruptedException {
+//        checkConnect();
+//        webDriver.get("https://outlook.live.com/");
+//        WebElement element = null;
+//        Select select = null;
+//        boolean status = false;
+//        boolean flag_wait = false;
+//        List<WebElement> listElement = null;
+//        try {
+//            element = webDriver.findElement(By.xpath("//span[@class='signinTxt']"));
+//            status = true;
+//        } catch (Exception e) {
+//            status = false;
+//        }
+//        // neu tao account lan dau phai cau hinh` language
+//        if (status) {
+//            while (!flag_wait) {
+//                flag_wait = utils.waitForPresence(webDriver, 5000, "//span[@class='signinTxt']");
+//
+//            }
+//            flag_wait = false;
+//            select = new Select(webDriver.findElement(By.xpath("//select[@id='selTz']")));
+//            select.selectByIndex(3);
+//
+//            select = new Select(webDriver.findElement(By.xpath("//select[@name='lcid' and @class='languageInputText']")));
+//            listElement = select.getOptions();
+//
+//            int index = 0;
+//            for (int i = 0; i < listElement.size(); i++) {
+//                if ("1066".equals(listElement.get(i).getAttribute("value"))) {
+//                    index = i;
+//                    break;
+//                }
+//            }
+//            select.selectByIndex(index);
+//            WebElement signinTxt = webDriver.findElement(By.xpath("//span[@class='signinTxt']"));
+//            signinTxt.click();
+//        }
+//
+//        // wait doi xuat hien page mail box
+//        while (!flag_wait) {
+//            flag_wait = utils.waitForPresence(webDriver, 5000, "//div[contains(@class,'ms-Persona ms-Persona--') and contains(@size,'11')]");
+//            checkConnect();
+//        }
+//        flag_wait = false;
+//        element = webDriver.findElement(By.xpath("//div[contains(@class,'ms-Persona ms-Persona--') and contains(@size,'11')]"));
+//        if (utils.isClickable(element, webDriver)) {
+//            // truong hop ko xuat hien modal
+//            element.click();
+//        }
+//
+//        while (!flag_wait) {
+//
+//            flag_wait = utils.waitForPresence(webDriver, 5000, "//div[contains(text(),'Đăng xuất')]");
+//        }
+//        flag_wait = false;
+//        element = webDriver.findElement(By.xpath("//div[contains(text(),'Đăng xuất')]/ancestor::div[2]"));
+//        while (utils.isClickable(element, webDriver)) {
+//            checkConnect();
+//            element.click();
+//        }
+//        utils.clearCookieFirefox(webDriver);
+//
+//    }
     public void checkConnect() throws InterruptedException {
         while (proxyWithSSH.status_proxy.equals(Constant.Creating)) {
             Thread.sleep(500);

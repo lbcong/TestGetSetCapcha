@@ -35,7 +35,7 @@ public interface Constant {
     String dirFileResult = "/app/Result.txt";
     String dirKey = "/app/key/";
     String binaryFirefoxLinux = "/usr/bin/firefox";
-    String binaryFirefoxWindows = "E:\\Soft\\FirefoxPortable\\App\\Firefox64\\firefox.exe";
+    String binaryFirefoxWindows = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
 
     String dirDriverFirefoxGoogleCloud = "";
     String dirDriverGoogleChromeGoogleCloud = "";

@@ -65,7 +65,7 @@ public class PathDriver {
                 dirDriverFirefox = Constant.dirDriverGoogleHeroku;
                 break;
             case "Windows":
-                dirDriverFirefox = realpath + File.separator + "geckodriver.exe";
+                dirDriverFirefox = realpath +"geckodriver.exe";
 
                 break;
         }
