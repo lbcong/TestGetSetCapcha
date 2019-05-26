@@ -47,7 +47,8 @@ public class ProxyWithSSH {
     public void setting(String rawURL) {
         InetAddress baddress = null;
         try {
-            listInfo = sSHService.getSSHs(rawURL);
+//            listInfo = sSHService.getSSHs(rawURL);
+            listInfo = sSHService.getSSHs2(rawURL);
             changeInfo();
             baddress = InetAddress.getByName(bindAddress);
             ss = new ServerSocket(socksPort, 0, baddress);

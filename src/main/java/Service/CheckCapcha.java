@@ -34,7 +34,6 @@ public class CheckCapcha {
             String img1 = ((RemoteWebElement) webDriver.findElement(By.xpath(Constant.xpathCapcha))).getId();
             System.out.println("hash img1 truoc submit:" + img1);
             element.sendKeys(capchaText);
-            element = webDriver.findElement(By.xpath("//input[@type='submit' and @id='iSignupAction']"));
             Thread.sleep(2000);
             //check connect 
             while (proxyWithSSH.getSession() == null) {
@@ -43,7 +42,19 @@ public class CheckCapcha {
             if (!proxyWithSSH.checkSshlive()) {
                 proxyWithSSH.changeIp();
             }
-            element.click();
+
+            Thread runLink = new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        webDriver.findElement(By.xpath("//input[@type='submit' and @id='iSignupAction']")).click();
+                    } catch (Exception e) {
+                        e.getMessage();
+                    }
+
+                }
+            };
+            runLink.start();
             String img2 = "";
             int counter = 0;
             while (counter < 2000) {
@@ -73,10 +84,12 @@ public class CheckCapcha {
                         //load xong roi tim sai vs dang load
                         try {
                             // load xong nhung tim sai
-                            webDriver.findElement(By.xpath("//i[@class='ms-Icon ms-Icon--ChevronRight']"));
-                            taskController.reportError("tao thanh cong :");
-                            System.out.println("nhap than cong");
-                            return Constant.Sucess;
+//                            webDriver.findElement(By.xpath("//i[@class='ms-Icon ms-Icon--ChevronRight']"));
+                            if (utils.isURLable(webDriver, "outlook.live.com/owa/")) {
+                                taskController.reportError("tao thanh cong :");
+                                System.out.println("tao than cong");
+                                return Constant.Sucess;
+                            }
                         } catch (Exception ex2) {
                             taskController.reportError("dang load trang sau khi nhap capcha");
                             // load chua xong se xuong day

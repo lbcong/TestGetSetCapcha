@@ -59,7 +59,7 @@
             }
 
             function connect() {
-                var socket = new SockJS('/hello');
+                var socket = new SockJS('https://socketjav1.herokuapp.com/hello');
                 stompClient = Stomp.over(socket);
                 stompClient.connect({}, function (frame) {
                     setConnected(true);

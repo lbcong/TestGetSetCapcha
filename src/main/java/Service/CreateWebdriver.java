@@ -8,6 +8,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,10 +27,17 @@ public class CreateWebdriver {
         WebDriver webDriver = null;
         try {
             System.setProperty(PathDriver.webDriverFirefox, PathDriver.dirDriverFirefox);
-            File pathToBinary = new File(binaryFirefox);
-            FirefoxBinary ffBinary = new FirefoxBinary(pathToBinary);
-            FirefoxProfile firefoxProfile = new FirefoxProfile();
-            webDriver = new FirefoxDriver(ffBinary, firefoxProfile);
+//            File pathToBinary = new File(binaryFirefox);
+//            FirefoxBinary ffBinary = new FirefoxBinary(pathToBinary);
+//            FirefoxProfile firefoxProfile = new FirefoxProfile();
+            FirefoxOptions options = new FirefoxOptions();
+            options.addPreference("network.proxy.type", 1);
+            options.addPreference("network.proxy.socks", "127.0.0.1");
+            options.addPreference("network.proxy.socks_port", 1080);
+            options.addPreference("dom.webnotifications.enabled", false);
+            options.addPreference("network.proxy.socks_version", 4);
+//            options.addArguments("--headless");
+            webDriver = new FirefoxDriver(options);
             return webDriver;
 
         } catch (Exception e) {
