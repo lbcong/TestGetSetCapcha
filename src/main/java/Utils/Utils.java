@@ -5,6 +5,7 @@
  */
 package Utils;
 
+import ConstantVariable.Constant;
 import Service.PathDriver;
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
@@ -228,11 +229,15 @@ public class Utils {
             return false;
         }
     }
+
     public WebDriver createNewWebdriver() {
+
         System.setProperty(PathDriver.webDriverGoogle, PathDriver.dirDriverGoogle);
+
         ChromeOptions optionswindow = new ChromeOptions();
-        String str_proxy_windows = "--proxy-server=socks4://127.0.0.1:" + 1080;
-        optionswindow.addArguments(str_proxy_windows);
+        optionswindow.setBinary(Constant.binaryGoogleHeroku);
+        String str_proxy_linux = "--proxy-server=socks4://127.0.0.1:" + 1080;
+        optionswindow.addArguments(str_proxy_linux);
         optionswindow.addArguments("--headless");
         return new ChromeDriver(optionswindow);
     }

@@ -39,7 +39,7 @@ public class MainController {
     String startAuto() {
         try {
             if (VariableSession.flag_status_is_first_run_app) {
-                webDriver = createWebdriver.getGoogle(Constant.binaryGoogleWindows);
+                webDriver = createWebdriver.getGoogle(Constant.binaryGoogleHeroku);
                 VariableSession.flag_status_is_first_run_app = false;
             }
             Thread startThread = new Thread() {
