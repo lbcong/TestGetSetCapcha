@@ -16,7 +16,7 @@
 		<textarea id="textAreaMessage" rows="10" cols="50"></textarea>
 
 		<script type="text/javascript">
-			var websocket = new WebSocket("wss://socketjav1.herokuapp.com/chatRoomServer");
+			var websocket = new WebSocket("ws://socketjav1.herokuapp.com/chatRoomServer");
 				websocket.onopen = function(message) {processOpen(message);};
 				websocket.onmessage = function(message) {processMessage(message);};
 				websocket.onclose = function(message) {processClose(message);};
